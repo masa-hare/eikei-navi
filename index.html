@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-VRZZW5Td764N4L9DPenYzDAZ0pR11X9aqK7eOPY8vI8='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-6mUiyc5FPtGDC7fqmRmUEZfIWt0LBY0guUEnynCc5o0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -282,21 +282,6 @@
   .ruleCompactTable th{background:var(--paper);font-weight:700;}
   .ruleCompactTable td:first-child{font-weight:700;white-space:nowrap;}
   .teamCode{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--yellow-soft);color:#6C4A0E;border-radius:5px;padding:1px 5px;font-size:11.5px;user-select:all;}
-  .teamCodeUnlockTrigger{
-    width:max-content;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--coral);
-    padding:6px 10px;min-height:36px;font:700 11.5px/1.4 -apple-system,"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;cursor:pointer;
-  }
-  .teamCodeStatus{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;}
-  .teamCodeDialog{width:min(420px,calc(100% - 32px));border:1.5px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);padding:0;box-shadow:0 18px 50px rgba(43,40,34,.25);}
-  .teamCodeDialog::backdrop{background:rgba(43,40,34,.5);backdrop-filter:blur(2px);}
-  .teamCodeDialogBody{padding:20px;max-height:calc(100dvh - 32px);overflow-y:auto;}
-  .teamCodeDialog h2{font-size:19px;margin:0 0 6px;}
-  .teamCodeDialog p{font-size:13px;color:var(--ink-soft);margin:0 0 12px;}
-  .teamCodeDialog label{display:block;font-size:12.5px;font-weight:700;margin-bottom:5px;}
-  .teamCodeDialog input[type="password"]{width:100%;font:inherit;font-size:16px;padding:12px 13px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);}
-  .teamCodeDialog input[type="password"]:focus{border-color:var(--coral);outline:none;}
-  .teamCodeDialogActions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;}
-  .teamCodeError{min-height:1.5em;margin-top:8px!important;color:#9E3325!important;}
   .supportedBadge{display:inline-block;background:#DDECE7;color:#245B4D;border-radius:100px;padding:1px 7px;font-size:10.5px;font-weight:700;margin-left:5px;vertical-align:1px;}
   .syllabusDetail{margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--paper);overflow:hidden;}
   .syllabusDetail summary{cursor:pointer;padding:7px 9px;font-size:12px;font-weight:700;color:var(--coral);list-style:none;}
@@ -475,7 +460,6 @@
     .tag{font-size:11.5px;}
     .intItem{flex-direction:column;gap:4px;}
     .intDate{min-width:0;white-space:normal;}
-    .teamCodeDialogBody{padding:17px;}
   }
 
   /* --- レスポンシブ：タブレット以上の画面幅では余白を活かしたレイアウトに --- */
@@ -573,7 +557,7 @@
         <div class="ruleCard capabilityCard can">
           <b data-en="What you can do">このサイトでできること</b>
           <ul>
-            <li data-en="Search AY2026 courses and check class codes, instructors, teaching languages, schedules, rooms, protected team codes, and summarized syllabus details.">2026年度の科目を検索し、時間割コード、教員、開講言語、曜日・時限、教室、保護されたチームコード、シラバスの要約を確認できます。</li>
+            <li data-en="Search AY2026 courses and check class codes, instructors, teaching languages, schedules, rooms, team codes, and summarized syllabus details.">2026年度の科目を検索し、時間割コード、教員、開講言語、曜日・時限、教室、チームコード、シラバスの要約を確認できます。</li>
             <li data-en="Select individual class sections and organize them in My Timetable, including Japanese and English sections separately.">日英を含む各セクションを個別に選び、マイ時間割で整理できます。</li>
             <li data-en="Check the academic calendar, intensive-course dates, and the annual Evening Lounge schedule.">学年暦、集中講義の日程、イブニングラウンジの年間予定を確認できます。</li>
           </ul>
@@ -669,9 +653,8 @@
     <details class="ruleDetails">
       <summary data-en="Information, storage, and GitHub Pages">掲載情報・端末内保存・GitHub Pages</summary>
       <div class="ruleDetailsBody">
-        <p data-en="The site contains public syllabus content, instructor names, and class codes, rooms, and dates distributed or posted for students. Team codes are stored only as encrypted data and become visible after entering the shared passphrase. Student names, student IDs, and individual grades are not published."><b>掲載内容：</b>公開シラバス、教員氏名と、学生向けに配布・掲示された授業コード・教室・日程です。チームコードは暗号化した状態で収録し、共通パスフレーズの入力後だけ表示します。学生の氏名・学籍番号・個人の成績は掲載していません。</p>
-        <p data-en="There is no personal account sign-in or personal-information form. The shared passphrase is used only in this browser to decrypt team codes and is not transmitted. The derived unlock key and My Timetable are stored in localStorage on this browser only; they are not sent to the site operator or shared with another browser or private mode."><b>保存：</b>個人アカウントへのログインや個人情報入力欄はありません。共通パスフレーズは、このブラウザ内でチームコードを復号するためだけに使い、送信しません。解除用に生成した鍵とマイ時間割は、このブラウザのlocalStorageだけに保存され、運営者へ送信されません。別ブラウザやシークレットモードには引き継がれません。</p>
-        <div class="teamCodeStatus"><span id="teamCodeSecurityStatus" class="ruleNote" role="status" aria-live="polite" data-en="Team codes are locked.">チームコードはロック中です。</span><button type="button" id="teamCodeLockBtn" class="pillBtn">チームコードを表示</button></div>
+        <p data-en="The site contains public syllabus content, instructor names, and class codes, rooms, dates, and team codes distributed or posted for students. Student names, student IDs, and individual grades are not published."><b>掲載内容：</b>公開シラバス、教員氏名と、学生向けに配布・掲示された授業コード・教室・日程・チームコードです。学生の氏名・学籍番号・個人の成績は掲載していません。</p>
+        <p data-en="There is no personal account sign-in or personal-information form. My Timetable is stored only in localStorage in this browser; it is not sent to the site operator or shared with another browser or private mode."><b>保存：</b>個人アカウントへのログインや個人情報入力欄はありません。マイ時間割は、このブラウザのlocalStorageだけに保存され、運営者へ送信されません。別ブラウザやシークレットモードには引き継がれません。</p>
         <p data-en="&lt;b&gt;Hosting:&lt;/b&gt; Eikei Navi is delivered as a static website through &lt;a href=&quot;https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;GitHub Pages&lt;/a&gt;. Only generated public files are placed in the public repository; source PDFs, editing files, import scripts, and work reports are not included. HTML, CSS, JavaScript, and PWA files are served from GitHub's infrastructure; Eikei Navi does not operate its own application server."><b>ホスティング：</b>叡啓Naviは、<a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages" target="_blank" rel="noopener">GitHub Pages</a>を利用した静的サイトとして配信します。公開リポジトリには生成済みの公開用ファイルだけを置き、取込元PDF・編集用ファイル・取込スクリプト・作業レポートは含めていません。HTML・CSS・JavaScript・PWA用ファイルはGitHubの設備から配信され、叡啓Navi独自のアプリケーションサーバーは運用しません。</p>
         <p data-en="&lt;b&gt;GitHub access logs:&lt;/b&gt; GitHub states that a visitor's IP address is logged and stored for security purposes when a GitHub Pages site is visited, whether or not the visitor is signed in. GitHub handles this information under its &lt;a href=&quot;https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Privacy Statement&lt;/a&gt;. This is separate from My Timetable data stored in the browser."><b>GitHubのアクセスログ：</b>GitHubは、GitHub Pagesの閲覧時に、ログインの有無にかかわらず訪問者のIPアドレスをセキュリティ目的で記録・保存すると説明しています。取り扱いはGitHubの<a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">プライバシーステートメント</a>に従います。これはブラウザ内のマイ時間割データとは別です。</p>
         <p data-en="&lt;b&gt;Site operator:&lt;/b&gt; Eikei Navi does not include its own access analytics, advertising trackers, login system, or data-submission form. Opening an external source link moves you to that provider's website and its own privacy policy applies."><b>叡啓Navi運営者：</b>独自のアクセス解析、広告トラッカー、ログイン機能、データ送信フォームは設置していません。外部の出典リンクを開いた後は、リンク先事業者のプライバシーポリシーが適用されます。</p>
@@ -712,20 +695,6 @@
   </footer>
 
 </div>
-
-<dialog id="teamCodeDialog" class="teamCodeDialog" aria-labelledby="teamCodeDialogTitle">
-  <div class="teamCodeDialogBody">
-    <h2 id="teamCodeDialogTitle" data-en="Unlock team codes">チームコードを表示</h2>
-    <p data-en="Enter the shared passphrase. It is checked only on this device and is not transmitted.">共通パスフレーズを入力してください。この端末内だけで照合し、外部へ送信しません。</p>
-    <label for="teamCodePassphrase" data-en="Shared passphrase">共通パスフレーズ</label>
-    <input type="password" id="teamCodePassphrase" autocomplete="off" spellcheck="false">
-    <p id="teamCodeUnlockError" class="teamCodeError" role="alert" aria-live="assertive"></p>
-    <div class="teamCodeDialogActions">
-      <button type="button" id="teamCodeCancelBtn" class="pillBtn" data-en="Cancel">キャンセル</button>
-      <button type="button" id="teamCodeUnlockBtn" class="pillBtn" data-en="Unlock">表示する</button>
-    </div>
-  </div>
-</dialog>
 
 <script>
 // ---- 言語設定 ----
@@ -1215,18 +1184,11 @@ const SUPPORTED_CODES = new Set([
   'L115E-02','T121E-01','L116E-02','T102E-01','T102E-02','L115E-01','T121E-02','L113E-01','L113E-02','L116E-01'
 ]);
 
-// Microsoft TeamsのコードはAES-GCMで暗号化して収録し、共通パスフレーズを入力した端末だけで復号する。
-// コースコード自体は時間割にも掲載される公開識別子なので、コードを持つセクションの一覧だけは平文で保持する。
-const TEAM_CODE_SECTION_IDS = new Set(["E101E-A1","E101E-B2","E102E-B1","E103E-I1","E103E-I2","J103J","L351E","L394J","T103E-01","E101E-B1","E101E-I1","E101E-I2","E102E-B2","E105E-A1","L217E","L314J","L383E","L397J","E102E-I1","E103E-A1","E103E-B2","E105E-B1","E105E-I2","L211J","L314E","L382J","E102E-A1","E102E-I2","E103E-B1","E105E-B2","E105E-I1","P201J-1","P201J-2","P201J-3","E104E-A1","E104E-B2","L211E","L312J","L371J","E104E-B1","E104E-I1","E104E-I2","L114J","L219J","L391E","T201E","L311J","L361E","L312E","L381J","L362J","T103E-02","P301J-1","P301J-2","P301J-3","L401E","L401J","E106E-A1","E106E-B2","E107E-B1","E108E-I1","E108E-I2","J104J","L212E","T103J","T223J","E106E-B1","E106E-I1","E106E-I2","E107E-B2","E110E-A1","L214J","L313E","L315J","L383E-2","T208J","E107E-I1","E108E-A1","E108E-B2","E110E-B1","E110E-I2","L215J","L315E","L342J","T206E-2","E107E-A1","E107E-I2","E108E-B1","E110E-B2","E110E-I1","P201E-1","P201E-2","P201J-4","P201J-5","E109E-A1","E109E-B2","L113J","L215E","L313J","L351E-2","L372J","E109E-B1","E109E-I1","E109E-I2","L322J","L341J","L395E","L356E","L391E-2","L392J","T206E","L396E","T121J","L311E","L371E","T103E-03","L211E-2","L103E","L111J","L316J","L352E","L352J","L354J","L393J","L395E-2"]);
-const TEAM_CODE_ENCRYPTION = {
-  version:1,
-  iterations:250000,
-  salt:'UD5kh2o1Y5zmjrTWMHrqqA==',
-  iv:'06oSP/S+4o+H9tDv',
-  ciphertext:'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'
-};
-const TEAM_CODE_KEY_STORAGE = 'eikei-navi-team-key-v1';
-let unlockedTeamCodeData = null;
+// Microsoft Teamsのコードは、学生向け資料に掲載された内容をそのまま表示する。
+const TEAM_CODE_DATA = Object.freeze({
+  codes:Object.freeze({"E101E-A1":"ukuwoc3","E101E-B2":"kxj872x","E102E-B1":"2elf3hj","E103E-I1":"z7pbw6p","E103E-I2":"hqwlc5j","J103J":"20dh4cn","L351E":"qh5faw1","L394J":"305cz9b","T103E-01":"nk3vsla","E101E-B1":"l42jsaw","E101E-I1":"vzf9ijg","E101E-I2":"dg9fsqz","E102E-B2":"zyz3sna","E105E-A1":"3hq101b","L217E":"nczzbp4","L314J":"y4dtptz","L383E":"cbod4pq","L397J":"he306xa","E102E-I1":"b100nks","E103E-A1":"cw3lr4z","E103E-B2":"vpb9ath","E105E-B1":"1pbbmh3","E105E-I2":"o5r9907","L211J":"cox29mq","L314E":"ii8qfn0","L382J":"8tht9ma","E102E-A1":"hxfslyc","E102E-I2":"jpwvul7","E103E-B1":"3a1uwxj","E105E-B2":"ry2j3ae","E105E-I1":"tz7rum1","P201J-1":"ddwwtoq","P201J-2":"ddwwtoq","P201J-3":"ddwwtoq","E104E-A1":"wkyukrd","E104E-B2":"vab2exe","L211E":"jwn76rc","L312J":"6soj7um","L371J":"p0nb063","E104E-B1":"e8zz5dr","E104E-I1":"zp7z8i3","E104E-I2":"uh4hznl","L114J":"xdrpb26","L219J":"cpiqfhd","L391E":"5njozhp","T201E":"r82sjnq","L311J":"4enzs8o","L361E":"46pt9x0","L312E":"qqsg901","L381J":"di60bsg","L362J":"20evaxs","T103E-02":"t5rewb2","P301J-1":"ukr53ca","P301J-2":"ukr53ca","P301J-3":"ukr53ca","L401E":"jhexnq6","L401J":"jhexnq6","E106E-A1":"ukuwoc3","E106E-B2":"kxj872x","E107E-B1":"2elf3hj","E108E-I1":"z7pbw6p","E108E-I2":"hqwlc5j","J104J":"4k1kzax","L212E":"o3j8z07","T103J":"hwy9dab","T223J":"wq5br3d","E106E-B1":"l42jsaw","E106E-I1":"vzf9ijg","E106E-I2":"dg9fsqz","E107E-B2":"zyz3sna","E110E-A1":"3hq101b","L214J":"yvjnp7f","L313E":"6i9hqfp","L315J":"6bjrkjb","L383E-2":"gttzf88","T208J":"4ua76nd","E107E-I1":"b100nks","E108E-A1":"cw3lr4z","E108E-B2":"vpb9ath","E110E-B1":"1pbbmh3","E110E-I2":"o5r9907","L215J":"mq15908","L315E":"2tqxa1g","L342J":"y0573so","T206E-2":"cvym1s6","E107E-A1":"hxfslyc","E107E-I2":"jpwvul7","E108E-B1":"3a1uwxj","E110E-B2":"ry2j3ae","E110E-I1":"tz7rum1","P201E-1":"345iz6u","P201E-2":"345iz6u","P201J-4":"p30kfsl","P201J-5":"p30kfsl","E109E-A1":"wkyukrd","E109E-B2":"vab2exe","L113J":"tkif8f5","L215E":"7874ob4","L313J":"9illes3","L351E-2":"25btrri","L372J":"on0amps","E109E-B1":"e8zz5dr","E109E-I1":"zp7z8i3","E109E-I2":"uh4hznl","L322J":"ks3rpz8","L341J":"44pp30u","L395E":"kxf72i9","L356E":"1ch4b9j","L391E-2":"p9azsoy","L392J":"398er5a","T206E":"ueq53ud","L396E":"k5tm1nd","T121J":"j2cs98j","L311E":"5sk7uu3","L371E":"a6f5gba","T103E-03":"1bjno3z","L211E-2":"uv0vqyd","L103E":"a4yh028","L111J":"r3xjt4e","L316J":"xqo2csj","L352E":"d1wluhk","L352J":"274b1uf","L354J":"atf34xk","L393J":"03d7w5s","L395E-2":"65e4dln"}),
+  shared:Object.freeze({p401:"4b3j8fs",a201_203:"vl8w1kw",a204_206:"q74xhad"})
+});
 
 // 指定フォルダ内の2026年度公式シラバスPDFから要点を転記・要約
 const LISTENING_BASIC_SYLLABUS = {
@@ -6363,94 +6325,21 @@ const SYLLABUS_DETAILS = {
     planEn:"ガイダンス１ 「アカデミック」とは何か？ これまで の読書・執筆経験の共有とウォームアッ プ（ライティングワーク）を行う。; ガイダンス２ 大学で必要なアカデミックライティング （AW）についての議論と目標設定を行 う。大学生活全体におけるAWの位置づ けを理解する。; 読むことと書くこと１ AWに不可欠な読解の練習を行う。; 読むことと書くこと２ AWのサンプルを読解し、要約と言い換 え（パラフレーズ）を練習する。; レポートの構造１ レポートに必要な構造とアウトラインの 作り方を学ぶ。; レポートの構造２ 読解で用いた文章と自分で調べた文章を 用いて、ミニレポートを執筆する。; 書き直し練習１ サンプル文章を読んで、文章の問題点を 発見し、改善するワークを行う（ブレイ ンストーミング、問いと答えの設定）。; 書き直し練習２ サンプル文章を読んで、文章の問題点を 発見し、改善するワークを行う（論点整 理、構成など）。; 書き直し練習３ サンプル文章を読んで、文章の問題点を 発見し、改善するワークを行う（説得力 、論理の一貫性など）。;"
   }
 };
-function bytesFromBase64(value){
-  const binary = atob(value);
-  return Uint8Array.from(binary, ch => ch.charCodeAt(0));
-}
-function base64FromBytes(value){
-  let binary = '';
-  new Uint8Array(value).forEach(byte => { binary += String.fromCharCode(byte); });
-  return btoa(binary);
-}
-function hasProtectedTeamCode(code){
-  return TEAM_CODE_SECTION_IDS.has(code) || /^P401[JE](?:-|$)/.test(code) || /^A20[123][JE]-1S$/.test(code) || /^A20[456]E(?:-|$)/.test(code);
-}
-async function deriveTeamCodeKey(passphrase){
-  if(!window.crypto || !window.crypto.subtle) throw new Error('Web Crypto unavailable');
-  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    {name:'PBKDF2', salt:bytesFromBase64(TEAM_CODE_ENCRYPTION.salt), iterations:TEAM_CODE_ENCRYPTION.iterations, hash:'SHA-256'},
-    material,
-    {name:'AES-GCM', length:256},
-    true,
-    ['decrypt']
-  );
-}
-async function decryptTeamCodePayload(key){
-  const plain = await crypto.subtle.decrypt(
-    {name:'AES-GCM', iv:bytesFromBase64(TEAM_CODE_ENCRYPTION.iv)},
-    key,
-    bytesFromBase64(TEAM_CODE_ENCRYPTION.ciphertext)
-  );
-  const parsed = JSON.parse(new TextDecoder().decode(plain));
-  if(!parsed || typeof parsed.codes !== 'object' || typeof parsed.shared !== 'object') throw new Error('Invalid team-code data');
-  return parsed;
-}
 function teamCodeFor(code){
-  if(!unlockedTeamCodeData) return '';
-  if(unlockedTeamCodeData.codes[code]) return unlockedTeamCodeData.codes[code];
-  if(/^P401[JE](?:-|$)/.test(code)) return unlockedTeamCodeData.shared.p401 || '';
-  if(/^A20[123][JE]-1S$/.test(code)) return unlockedTeamCodeData.shared.a201_203 || '';
-  if(/^A20[456]E(?:-|$)/.test(code)) return unlockedTeamCodeData.shared.a204_206 || '';
+  if(TEAM_CODE_DATA.codes[code]) return TEAM_CODE_DATA.codes[code];
+  if(/^P401[JE](?:-|$)/.test(code)) return TEAM_CODE_DATA.shared.p401 || '';
+  if(/^A20[123][JE]-1S$/.test(code)) return TEAM_CODE_DATA.shared.a201_203 || '';
+  if(/^A20[456]E(?:-|$)/.test(code)) return TEAM_CODE_DATA.shared.a204_206 || '';
   return '';
 }
+function hasTeamCode(code){
+  return Boolean(teamCodeFor(code));
+}
 function teamCodeHTML(code, block){
-  if(!hasProtectedTeamCode(code)) return '';
   const value = teamCodeFor(code);
+  if(!value) return '';
   const tag = block ? 'div' : 'span';
-  if(value) return `<${tag} class="sMeta">${L('チームコード：','Team code: ')}<code class="teamCode">${escapeHTML(value)}</code></${tag}>`;
-  return `<${tag} class="sMeta"><button type="button" class="teamCodeUnlockTrigger">${L('チームコードを表示','Show team code')}</button></${tag}>`;
-}
-function updateTeamCodeSecurityUI(){
-  const status = document.getElementById('teamCodeSecurityStatus');
-  const lockBtn = document.getElementById('teamCodeLockBtn');
-  if(status) status.textContent = unlockedTeamCodeData
-    ? L('この端末ではチームコードを表示できます。','Team codes are unlocked on this device.')
-    : L('チームコードはロック中です。','Team codes are locked.');
-  if(lockBtn) lockBtn.textContent = unlockedTeamCodeData
-    ? L('チームコードをロック','Lock team codes')
-    : L('チームコードを表示','Show team codes');
-}
-function refreshProtectedTeamCodeViews(){
-  updateTeamCodeSecurityUI();
-  renderCourses();
-  renderTimetable();
-}
-async function unlockTeamCodes(passphrase){
-  const key = await deriveTeamCodeKey(passphrase);
-  const data = await decryptTeamCodePayload(key);
-  const rawKey = await crypto.subtle.exportKey('raw', key);
-  try{ localStorage.setItem(TEAM_CODE_KEY_STORAGE, base64FromBytes(rawKey)); }catch(e){ /* 記憶できない環境でも今回の表示は続行 */ }
-  unlockedTeamCodeData = data;
-  refreshProtectedTeamCodeViews();
-}
-async function restoreTeamCodeAccess(){
-  let saved = '';
-  try{ saved = localStorage.getItem(TEAM_CODE_KEY_STORAGE) || ''; }catch(e){}
-  if(!saved){ updateTeamCodeSecurityUI(); return; }
-  try{
-    const key = await crypto.subtle.importKey('raw', bytesFromBase64(saved), {name:'AES-GCM'}, false, ['decrypt']);
-    unlockedTeamCodeData = await decryptTeamCodePayload(key);
-  }catch(e){
-    unlockedTeamCodeData = null;
-    try{ localStorage.removeItem(TEAM_CODE_KEY_STORAGE); }catch(e2){}
-  }
-  refreshProtectedTeamCodeViews();
-}
-function lockTeamCodes(){
-  unlockedTeamCodeData = null;
-  try{ localStorage.removeItem(TEAM_CODE_KEY_STORAGE); }catch(e){}
-  refreshProtectedTeamCodeViews();
+  return `<${tag} class="sMeta">${L('チームコード：','Team code: ')}<code class="teamCode">${escapeHTML(value)}</code></${tag}>`;
 }
 // 公式時間割のコード末尾 J/E は、そのセクションの授業言語を表す。
 // 科目単位で決め打ちせず、同一科目の日本語・英語セクションを個別に表示する。
@@ -6915,7 +6804,7 @@ function renderTimetable(){
 
   ttOther.innerHTML = other.length
     ? `<p style="font-size:13px;color:var(--ink-soft);margin:0 0 8px;">${L('曜日・時限が決まっていない科目（通年など）','Courses without a fixed day/period (full-year, etc.)')}</p>` +
-      other.map(x => `<div class="ttOtherItem"><span>${escapeHTML(L(x.courseJp,x.courseEn))}（${escapeHTML(x.teacher)} / ${escapeHTML(L(TERM_LABEL[x.term]||x.term, TERM_LABEL_EN[x.term]||x.term))}）<br>${languageBadgeHTML(x.code, true)}${x.room ? '<br><span style="color:var(--ink-soft);font-size:12px;">'+L('教室：','Room: ')+escapeHTML(x.room)+'</span>' : ''}${hasProtectedTeamCode(x.code) ? '<br>'+teamCodeHTML(x.code, false) : ''}</span><button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>`).join('')
+      other.map(x => `<div class="ttOtherItem"><span>${escapeHTML(L(x.courseJp,x.courseEn))}（${escapeHTML(x.teacher)} / ${escapeHTML(L(TERM_LABEL[x.term]||x.term, TERM_LABEL_EN[x.term]||x.term))}）<br>${languageBadgeHTML(x.code, true)}${x.room ? '<br><span style="color:var(--ink-soft);font-size:12px;">'+L('教室：','Room: ')+escapeHTML(x.room)+'</span>' : ''}${hasTeamCode(x.code) ? '<br>'+teamCodeHTML(x.code, false) : ''}</span><button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>`).join('')
     : '';
   ttOther.querySelectorAll('.rm').forEach(el => {
     el.addEventListener('click', () => {
@@ -7325,12 +7214,13 @@ function renderCalendar(){
 }
 // 初期表示は、すべての関数と定数がそろってから一度だけ行う。
 loadLang();
+// 旧版のチームコード解除用データは、保護機能の廃止に伴い削除する。
+try{ localStorage.removeItem('eikei-navi-team-key-v1'); }catch(e){}
 applyStaticLang();
 populateFilters();
 renderCourses();
 renderCalendar();
 loadTimetable();
-updateTeamCodeSecurityUI();
 
 // ---- tabs ----
 document.querySelectorAll('nav.tabs button').forEach(btn => {
@@ -7347,70 +7237,11 @@ document.getElementById('langToggle').addEventListener('click', () => {
   LANG = LANG === 'ja' ? 'en' : 'ja';
   saveLang();
   applyStaticLang();
-  updateTeamCodeSecurityUI();
   populateFilters();
   renderCourses();
   renderTimetable();
   renderCalendar();
 });
-// ---- チームコード：端末内でのみ復号し、解除用の派生鍵だけを記憶 ----
-(function setupTeamCodeProtection(){
-  const dialog = document.getElementById('teamCodeDialog');
-  const passphraseInput = document.getElementById('teamCodePassphrase');
-  const unlockBtn = document.getElementById('teamCodeUnlockBtn');
-  const cancelBtn = document.getElementById('teamCodeCancelBtn');
-  const lockBtn = document.getElementById('teamCodeLockBtn');
-  const error = document.getElementById('teamCodeUnlockError');
-  if(!dialog || !passphraseInput || !unlockBtn || !cancelBtn || !lockBtn) return;
-
-  function openDialog(){
-    if(unlockedTeamCodeData) return;
-    error.textContent = '';
-    passphraseInput.value = '';
-    if(typeof dialog.showModal === 'function') dialog.showModal();
-    else dialog.setAttribute('open','');
-    window.setTimeout(() => passphraseInput.focus(), 0);
-  }
-  function closeDialog(){
-    if(typeof dialog.close === 'function') dialog.close();
-    else dialog.removeAttribute('open');
-  }
-  async function submitPassphrase(){
-    if(!passphraseInput.value){
-      error.textContent = L('パスフレーズを入力してください。','Enter the passphrase.');
-      passphraseInput.focus();
-      return;
-    }
-    unlockBtn.disabled = true;
-    error.textContent = L('確認しています…','Checking…');
-    try{
-      await unlockTeamCodes(passphraseInput.value);
-      passphraseInput.value = '';
-      closeDialog();
-    }catch(e){
-      error.textContent = L('パスフレーズが違うか、この環境では暗号化機能を利用できません。','The passphrase is incorrect, or encryption is unavailable in this browser.');
-      passphraseInput.select();
-    }finally{
-      unlockBtn.disabled = false;
-    }
-  }
-
-  document.addEventListener('click', event => {
-    const trigger = event.target.closest('.teamCodeUnlockTrigger');
-    if(trigger){ event.preventDefault(); event.stopPropagation(); openDialog(); }
-  });
-  unlockBtn.addEventListener('click', submitPassphrase);
-  cancelBtn.addEventListener('click', closeDialog);
-  lockBtn.addEventListener('click', () => unlockedTeamCodeData ? lockTeamCodes() : openDialog());
-  passphraseInput.addEventListener('keydown', event => {
-    if(event.key === 'Enter'){ event.preventDefault(); submitPassphrase(); }
-  });
-  dialog.addEventListener('click', event => {
-    if(event.target === dialog) closeDialog();
-  });
-  restoreTeamCodeAccess();
-})();
-
 // ---- PWA：オフライン対応・ホーム画面追加用のService Worker登録 ----
 // sw.js が同じ場所に無い環境（アーティファクトとして開いた場合など）では静かに失敗するだけで、他の機能には影響しない
 if('serviceWorker' in navigator){
