@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-OFxf0qlbtSVs58O3hMTO4EfUv9Ddsz8D8Ywwf2SPX1k='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-O3/uxpDMolzrwVKTk+fNRVyou5jihPJ7O8Hoj7A0o/M='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -7193,7 +7193,10 @@ function renderCourses(){
     const windowTagHTML = courseWindow
       ? `<div class="windowMarker">${escapeHTML(L(...WINDOW_LABELS[courseWindow]))}</div>`
       : '';
-    const schedulePreviewHTML = courseSchedulePreviewHTML(sections);
+    const scheduleSections = term
+      ? sections.filter(section => section.term === term)
+      : sections;
+    const schedulePreviewHTML = courseSchedulePreviewHTML(scheduleSections);
     let sectionsHTML;
     if(sections.length){
       sectionsHTML = `<p style="margin:0 0 6px;font-size:12px;color:var(--ink-soft);">${L('2026年度 開講セクション','2026 Offered Sections')}</p>` +
