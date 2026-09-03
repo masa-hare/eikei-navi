@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-AWK6nJSSryWKRQ+e6T6JtHQgjk1+OC9kClEl0PirizQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-OFxf0qlbtSVs58O3hMTO4EfUv9Ddsz8D8Ywwf2SPX1k='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -177,6 +177,7 @@
   .card .row1{
     display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
   }
+  .courseHeading{min-width:0;flex:1 1 auto;}
   .card .name{
     font-weight:700;font-size:15.5px;min-width:0;overflow-wrap:anywhere;
   }
@@ -191,11 +192,10 @@
     padding:3px 9px;border-radius:100px;
     white-space:normal;text-align:center;line-height:1.35;
   }
-  .windowTag{
-    width:max-content;max-width:100%;font-size:10.5px;font-weight:700;
-    padding:2px 7px;border-radius:100px;text-align:center;line-height:1.35;
-  }
-  .windowTag{background:var(--coral-soft);color:#8C351E;}
+  .windowMarker{width:max-content;max-width:100%;margin-top:7px;padding:1px 0 1px 8px;border-left:3px solid var(--coral);color:#984127;font-size:11px;font-weight:700;line-height:1.4;overflow-wrap:anywhere;}
+  .schedulePreview{display:flex;align-items:baseline;gap:8px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--ink-soft);line-height:1.45;}
+  .schedulePreviewLabel{flex:0 0 auto;font-weight:700;color:var(--ink);}
+  .schedulePreviewValue{min-width:0;overflow-wrap:anywhere;}
   .filterRelation{margin:-3px 0 11px;font-size:11.5px;color:var(--ink-soft);line-height:1.55;}
   .summary{
     font-size:13.5px;color:var(--ink-soft);margin-top:6px;display:none;
@@ -542,7 +542,7 @@
         <option value="ecosystem" data-en="Ecosystem Design">エコシステムデザイン</option>
       </select>
     </div>
-    <p class="filterRelation" data-en="Advanced Liberal Arts courses are organized on two separate axes: academic field (Humanities, Social Science, or Natural Science) and window (Identity, Business, or Ecosystem Design).">リベラルアーツ発展科目は、「分野（人・社会・自然）」と「ウィンドウ（アイデンティティ・ビジネス・エコシステム）」の別々の軸で整理しています。</p>
+    <p class="filterRelation" data-en="Advanced Liberal Arts courses are organized by academic field (Humanities, Social Science, or Natural Science) and by three perspectives (Identity, Business, or Ecosystem Design).">リベラルアーツ発展科目は、「分野（人・社会・自然）」と「3つの視点（アイデンティティ・ビジネス・エコシステム）」で整理しています。</p>
     <p class="count"><b id="resultCount">0</b> <span data-en="results / ">件 / 全</span><span id="totalCount">0</span><span data-en="total">件</span></p>
     <div id="courseList"></div>
     <div class="empty" id="emptyState" style="display:none;" data-en="No matching courses found.">該当する科目が見つかりませんでした。</div>
@@ -7098,6 +7098,36 @@ function matchesSearch(hay, terms){
   return terms.every(t => fuzzyIncludes(hay, t)); // すべてのキーワードを含めばヒット（AND検索）
 }
 
+function courseSchedulePreviewHTML(sections){
+  const dayOrder = ['月','火','水','木','金','土','日'];
+  const patterns = [];
+  const seen = new Set();
+  sections.forEach(section => {
+    const slots = parseDayPeriod(section.day);
+    let pattern = '';
+    if(slots.length){
+      const periodsByDay = new Map(dayOrder.map(day => [day,new Set()]));
+      slots.forEach(({day,period}) => periodsByDay.get(day)?.add(Number(period)));
+      pattern = dayOrder.flatMap(day => {
+        const periods = [...periodsByDay.get(day)].sort((a,b) => a-b);
+        return periods.length ? [`${L(day,DAY_EN[day])}${periods.join('・')}`] : [];
+      }).join('・');
+    } else if(section.term === 'Intensive'){
+      pattern = L('集中','Intensive');
+    }
+    if(pattern && !seen.has(pattern)){
+      seen.add(pattern);
+      patterns.push(pattern);
+    }
+  });
+  if(!patterns.length) patterns.push(L('日時未定','Schedule TBA'));
+  const maxVisible = 3;
+  const extra = patterns.length - maxVisible;
+  const visibleText = patterns.slice(0,maxVisible).join(' ／ ') + (extra > 0 ? L(` ／ ほか${extra}`,` / +${extra} more`) : '');
+  const fullText = patterns.join(' ／ ');
+  return `<div class="schedulePreview" title="${escapeHTML(fullText)}"><span class="schedulePreviewLabel">${L('曜日・時限','Day / period')}</span><span class="schedulePreviewValue">${escapeHTML(visibleText)}</span></div>`;
+}
+
 function escapeHTML(str){
   if(str === null || str === undefined) return '';
   return String(str)
@@ -7161,8 +7191,9 @@ function renderCourses(){
       ? L(`分野：${fieldLabels[0]}`,`Field: ${fieldLabels[1]}`)
       : L(category, CATEGORY_EN[category] || category);
     const windowTagHTML = courseWindow
-      ? `<div class="windowTag">${escapeHTML(L('ウィンドウ：','Window: ')+L(...WINDOW_LABELS[courseWindow]))}</div>`
+      ? `<div class="windowMarker">${escapeHTML(L(...WINDOW_LABELS[courseWindow]))}</div>`
       : '';
+    const schedulePreviewHTML = courseSchedulePreviewHTML(sections);
     let sectionsHTML;
     if(sections.length){
       sectionsHTML = `<p style="margin:0 0 6px;font-size:12px;color:var(--ink-soft);">${L('2026年度 開講セクション','2026 Offered Sections')}</p>` +
@@ -7187,13 +7218,16 @@ function renderCourses(){
     const primaryName = L(jp, en), secondaryName = L(en, jp);
     card.innerHTML = `
       <div class="row1">
-        <div class="name">${highlight(primaryName,q)}<span class="en">${highlight(secondaryName,q)}</span></div>
+        <div class="courseHeading">
+          <div class="name">${highlight(primaryName,q)}<span class="en">${highlight(secondaryName,q)}</span></div>
+          ${windowTagHTML}
+        </div>
         <div class="tagStack">
           <div class="tag">${escapeHTML(categoryTagText)}</div>
-          ${windowTagHTML}
           <div class="languageSummary" aria-label="${L('2026年度の開講言語','Teaching languages in 2026')}">${languageSummaryHTML}</div>
         </div>
       </div>
+      ${schedulePreviewHTML}
       <div class="summary">
         <p style="margin:0 0 10px;">${highlight(summary,q)}${LANG==='en' ? ' <em style="color:var(--ink-soft);font-size:11.5px;">('+L('','Description available in Japanese only')+')</em>' : ''}</p>
         ${sectionsHTML}
