@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-6mUiyc5FPtGDC7fqmRmUEZfIWt0LBY0guUEnynCc5o0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-xBflCC54LvRi1bkvNM0QzVHG4HgMOtLpVXhEJUJdQF4='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -279,6 +279,11 @@
   .ruleNote{font-size:12px;color:var(--ink-soft);line-height:1.65;margin-top:10px;}
   .ruleSubhead{font-size:13px;margin:16px 0 6px;color:var(--ink);}
   .ruleSubhead:first-child{margin-top:0;}
+  .registrationCohortPicker{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:8px 0 12px;padding:11px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;}
+  .registrationCohortPicker label{display:grid;gap:4px;font-size:12px;font-weight:700;color:var(--ink-soft);}
+  .registrationCohortPicker select{min-width:220px;max-width:100%;padding:8px 34px 8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;font-weight:700;}
+  .registrationCohortHint{margin:0!important;font-size:12px;color:var(--ink-soft);}
+  .ttTable tr[hidden]{display:none!important;}
   .ruleCode{display:inline-block;padding:2px 7px;border:1px solid var(--line);border-radius:7px;background:var(--paper);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-weight:700;white-space:nowrap;}
   .ruleCompactTable{width:100%;border-collapse:collapse;font-size:12.5px;line-height:1.5;}
   .ruleCompactTable th,.ruleCompactTable td{padding:8px 9px;border:1px solid var(--line);text-align:left;vertical-align:top;}
@@ -311,9 +316,11 @@
     .ruleCompactTable td:last-child,.ttTable td:last-child{border-bottom:0;}
     .ruleCompactTable td::before,.ttTable td::before{font-weight:700;color:var(--ink-soft);font-size:11.5px;}
     .ruleCompactTable td:nth-child(1)::before{content:'位置';}.ruleCompactTable td:nth-child(2)::before{content:'意味';}.ruleCompactTable td:nth-child(3)::before{content:'記号';}
-    .ttTable td:nth-child(1)::before{content:'クォーター';}.ttTable td:nth-child(2)::before{content:'対象';}.ttTable td:nth-child(3)::before{content:'履修登録期間';}.ttTable td:nth-child(4)::before{content:'抽選';}.ttTable td:nth-child(5)::before{content:'変更期間';}.ttTable td:nth-child(6)::before{content:'成績開示';}
+    .ttTable td:nth-child(1)::before{content:'クォーター';}.ttTable td:nth-child(2)::before{content:'履修登録期間';}.ttTable td:nth-child(3)::before{content:'抽選';}.ttTable td:nth-child(4)::before{content:'変更期間';}.ttTable td:nth-child(5)::before{content:'成績開示';}
     html[lang="en"] .ruleCompactTable td:nth-child(1)::before{content:'Position';}html[lang="en"] .ruleCompactTable td:nth-child(2)::before{content:'Meaning';}html[lang="en"] .ruleCompactTable td:nth-child(3)::before{content:'Codes';}
-    html[lang="en"] .ttTable td:nth-child(1)::before{content:'Quarter';}html[lang="en"] .ttTable td:nth-child(2)::before{content:'Cohort';}html[lang="en"] .ttTable td:nth-child(3)::before{content:'Registration';}html[lang="en"] .ttTable td:nth-child(4)::before{content:'Lottery';}html[lang="en"] .ttTable td:nth-child(5)::before{content:'Modification';}html[lang="en"] .ttTable td:nth-child(6)::before{content:'Grades';}
+    html[lang="en"] .ttTable td:nth-child(1)::before{content:'Quarter';}html[lang="en"] .ttTable td:nth-child(2)::before{content:'Registration';}html[lang="en"] .ttTable td:nth-child(3)::before{content:'Lottery';}html[lang="en"] .ttTable td:nth-child(4)::before{content:'Modification';}html[lang="en"] .ttTable td:nth-child(5)::before{content:'Grades';}
+    .registrationCohortPicker{display:grid;align-items:stretch;gap:7px;}
+    .registrationCohortPicker select{width:100%;min-width:0;}
   }
 
   .intItem{
@@ -625,16 +632,28 @@
         </ul>
 
         <p class="ruleSubhead" data-en="AY2026 registration schedule">2026年度 履修登録スケジュール</p>
-        <table class="ttTable" style="min-width:640px;font-size:12.5px;">
-          <tr><th data-en="Quarter">クォーター</th><th data-en="Cohort">対象</th><th data-en="Registration period">履修登録期間</th><th data-en="Lottery">抽選</th><th data-en="Modification period">変更期間</th><th data-en="Grade disclosure (planned)">成績開示（予定）</th></tr>
-          <tr><td>Spring</td><td data-en="AY2026 entrants">2026年度入学生</td><td>4/6(月)〜4/6(月)18:00</td><td>ー</td><td>ー</td><td>6/24(水)16:00〜</td></tr>
-          <tr><td>Spring</td><td data-en="Entrants in or before AY2025">2025年度以前入学生</td><td>4/1(水)〜4/6(月)18:00<br><small data-en="Register all quarters">1年間分を登録</small></td><td>4/7(火)</td><td>4/8(水)〜4/9(木)18:00</td><td>6/24(水)16:00〜<br><small data-en="June graduates: June 17, 16:00">6月末卒業者のみ6/17(水)16:00〜</small></td></tr>
-          <tr><td>Summer</td><td data-en="All cohorts">全対象者</td><td data-en="Registered during the Spring registration period">Springの登録期間に登録</td><td>ー</td><td>ー</td><td>8/26(水)16:00〜</td></tr>
-          <tr><td>Autumn</td><td data-en="AY2026 Spring entrants">2026年度春入学生</td><td data-en="Required courses are assigned by the university; no self-registration">必修科目は大学がクラス分け（本人の登録不要）</td><td>ー</td><td>ー</td><td>12/16(水)16:00〜</td></tr>
-          <tr><td>Autumn</td><td data-en="AY2026 Autumn entrants">2026年度秋入学生</td><td>9/29(火)〜9/29(火)18:00<br><small data-en="Required courses are assigned by the university">必修科目は大学がクラス分け</small></td><td>ー</td><td>ー</td><td>12/16(水)16:00〜</td></tr>
-          <tr><td>Autumn</td><td data-en="Entrants in or before AY2025">2025年度以前入学生</td><td>9/2(火)〜9/9(水)18:00</td><td>9/10(木)</td><td>9/11(金)〜9/17(木)18:00</td><td>12/16(水)16:00〜<br><small data-en="December graduates: December 9, 16:00">12月末卒業者のみ12/9(水)16:00〜</small></td></tr>
-          <tr><td>Winter</td><td data-en="Entrants in AY2024-2026">2024〜2026年度入学生</td><td>12/1(火)〜12/8(火)18:00</td><td>12/9(水)</td><td>12/10(木)〜12/16(水)18:00</td><td>3/24(水)16:00〜</td></tr>
-          <tr><td>Winter</td><td data-en="Entrants in or before AY2023">2023年度以前入学生</td><td>12/1(火)〜12/8(火)18:00</td><td>12/9(水)</td><td>12/10(木)〜12/16(水)18:00</td><td>3/24(水)16:00〜<br><small data-en="March graduates: March 10, 16:00">3月末卒業者のみ3/10(水)16:00〜</small></td></tr>
+        <div class="registrationCohortPicker">
+          <label for="registrationCohort"><span data-en="Entrance year / term">入学年度・時期</span>
+            <select id="registrationCohort">
+              <option value="2026-spring" data-en="AY2026 Spring entrant">2026年度 春入学</option>
+              <option value="2026-autumn" data-en="AY2026 Autumn entrant">2026年度 秋入学</option>
+              <option value="2025" data-en="AY2025 entrant">2025年度 入学</option>
+              <option value="2024" data-en="AY2024 entrant">2024年度 入学</option>
+              <option value="2023-earlier" data-en="AY2023 or earlier">2023年度以前 入学</option>
+            </select>
+          </label>
+          <p class="registrationCohortHint" id="registrationCohortHint" aria-live="polite"></p>
+        </div>
+        <table class="ttTable" style="min-width:560px;font-size:12.5px;">
+          <tr><th data-en="Quarter">クォーター</th><th data-en="Registration period">履修登録期間</th><th data-en="Lottery">抽選</th><th data-en="Modification period">変更期間</th><th data-en="Grade disclosure (planned)">成績開示（予定）</th></tr>
+          <tr data-registration-cohorts="2026-spring"><td>Spring</td><td>4/6(月)〜4/6(月)18:00</td><td>ー</td><td>ー</td><td>6/24(水)16:00〜</td></tr>
+          <tr data-registration-cohorts="2025 2024 2023-earlier"><td>Spring</td><td>4/1(水)〜4/6(月)18:00<br><small data-en="Register all quarters">1年間分を登録</small></td><td>4/7(火)</td><td>4/8(水)〜4/9(木)18:00</td><td>6/24(水)16:00〜<br><small data-en="June graduates: June 17, 16:00">6月末卒業者のみ6/17(水)16:00〜</small></td></tr>
+          <tr data-registration-cohorts="2026-spring 2025 2024 2023-earlier"><td>Summer</td><td data-en="Registered during the Spring registration period">Springの登録期間に登録</td><td>ー</td><td>ー</td><td>8/26(水)16:00〜</td></tr>
+          <tr data-registration-cohorts="2026-spring"><td>Autumn</td><td data-en="Required courses are assigned by the university; no self-registration">必修科目は大学がクラス分け（本人の登録不要）</td><td>ー</td><td>ー</td><td>12/16(水)16:00〜</td></tr>
+          <tr data-registration-cohorts="2026-autumn"><td>Autumn</td><td>9/29(火)〜9/29(火)18:00<br><small data-en="Required courses are assigned by the university">必修科目は大学がクラス分け</small></td><td>ー</td><td>ー</td><td>12/16(水)16:00〜</td></tr>
+          <tr data-registration-cohorts="2025 2024 2023-earlier"><td>Autumn</td><td>9/2(火)〜9/9(水)18:00</td><td>9/10(木)</td><td>9/11(金)〜9/17(木)18:00</td><td>12/16(水)16:00〜<br><small data-en="December graduates: December 9, 16:00">12月末卒業者のみ12/9(水)16:00〜</small></td></tr>
+          <tr data-registration-cohorts="2026-spring 2026-autumn 2025 2024"><td>Winter</td><td>12/1(火)〜12/8(火)18:00</td><td>12/9(水)</td><td>12/10(木)〜12/16(水)18:00</td><td>3/24(水)16:00〜</td></tr>
+          <tr data-registration-cohorts="2023-earlier"><td>Winter</td><td>12/1(火)〜12/8(火)18:00</td><td>12/9(水)</td><td>12/10(木)〜12/16(水)18:00</td><td>3/24(水)16:00〜<br><small data-en="March graduates: March 10, 16:00">3月末卒業者のみ3/10(水)16:00〜</small></td></tr>
         </table>
         <p class="ruleNote" data-en="The modification period and course withdrawal are separate procedures. After registration is finalized, a course may be withdrawn only under the conditions below. Intensive courses whose schedule or syllabus is not final may be announced separately.">「変更期間」と「履修取消」は別の手続きです。履修登録確定後は、次の条件に該当する場合だけ取消を申請できます。日程・シラバス未確定の集中講義は別途案内される場合があります。</p>
       </div>
@@ -730,6 +749,22 @@ function applyStaticLang(){
   });
   const btn = document.getElementById('langToggle');
   if(btn) btn.textContent = LANG === 'ja' ? 'English' : '日本語';
+}
+
+function renderRegistrationSchedule(){
+  const select = document.getElementById('registrationCohort');
+  const hint = document.getElementById('registrationCohortHint');
+  if(!select || !hint) return;
+  let visibleCount = 0;
+  document.querySelectorAll('[data-registration-cohorts]').forEach(row => {
+    const visible = row.dataset.registrationCohorts.split(/\s+/).includes(select.value);
+    row.hidden = !visible;
+    if(visible) visibleCount++;
+  });
+  const cohortLabel = select.options[select.selectedIndex]?.textContent.trim() || '';
+  hint.textContent = LANG === 'ja'
+    ? `${cohortLabel}向けの予定を${visibleCount}件表示しています。`
+    : `Showing ${visibleCount} schedule entries for ${cohortLabel}.`;
 }
 
 // ---- data: course summaries (paraphrased from the public "授業科目の概要【全科目】" PDF) ----
@@ -7224,6 +7259,8 @@ populateFilters();
 renderCourses();
 renderCalendar();
 loadTimetable();
+renderRegistrationSchedule();
+document.getElementById('registrationCohort')?.addEventListener('change', renderRegistrationSchedule);
 
 // ---- tabs ----
 document.querySelectorAll('nav.tabs button').forEach(btn => {
@@ -7244,6 +7281,7 @@ document.getElementById('langToggle').addEventListener('click', () => {
   renderCourses();
   renderTimetable();
   renderCalendar();
+  renderRegistrationSchedule();
 });
 // ---- PWA：オフライン対応・ホーム画面追加用のService Worker登録 ----
 // sw.js が同じ場所に無い環境（アーティファクトとして開いた場合など）では静かに失敗するだけで、他の機能には影響しない

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eikei-navi-v28';
+const CACHE_NAME = 'eikei-navi-v29';
 const APP_SHELL = [
   './index.html',
   './manifest.json',
