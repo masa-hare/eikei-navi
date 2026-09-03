@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eikei-navi-v27';
+const CACHE_NAME = 'eikei-navi-v28';
 const APP_SHELL = [
   './index.html',
   './manifest.json',
@@ -30,16 +30,20 @@ self.addEventListener('fetch', event => {
   if(url.origin !== self.location.origin) return;
 
   if(request.mode === 'navigate'){
+    const update = fetch(request).then(response => {
+      if(response.ok){
+        const copy = response.clone();
+        return caches.open(CACHE_NAME).then(cache => {
+          return cache.put('./index.html', copy).then(() => response);
+        });
+      }
+      return response;
+    });
+
+    event.waitUntil(update.then(() => undefined).catch(() => undefined));
     event.respondWith(
-      fetch(request)
-        .then(response => {
-          if(response.ok){
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
-          }
-          return response;
-        })
-        .catch(() => caches.match('./index.html'))
+      caches.match('./index.html')
+        .then(cached => cached || update)
     );
     return;
   }
