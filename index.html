@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-bBU/ZcP30Rv3y6EfG6zqCU+eADbZkrRFM9nMHFM0wb4='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-goSyPgSOf0gzG2mUVntt5ZT+GDStfb00KtzYcG0/HuM='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -566,9 +566,6 @@
     <div id="ttGrid" class="desktopOnly"></div>
     <div id="myIntensiveList" style="margin-top:18px;"></div>
     <div id="ttOther" style="margin-top:18px;"></div>
-    <button class="pillBtn" id="icsBtn" style="margin-top:16px;" data-en="Add to calendar app">カレンダーアプリに追加する</button>
-    <p style="font-size:12px;color:var(--ink-soft);margin-top:8px;" data-en="Tapping downloads a file. Open it with your calendar app's &quot;import&quot; feature (Google Calendar, iPhone Calendar, etc.) to add your selected courses as weekly events.">タップするとファイルがダウンロードされます。そのファイルをGoogleカレンダーやiPhoneのカレンダーの「読み込み／インポート」から開くと、選んだ授業が毎週の予定として入ります。</p>
-    <p id="icsNote" style="font-size:12px;color:var(--ink-soft);margin-top:10px;"></p>
     <button class="pillBtn dangerBtn" id="clearTimetableBtn" data-en="Delete all My Timetable data">マイ時間割をすべて削除</button>
     <p id="storageNote" role="status" aria-live="polite" style="font-size:12px;color:var(--ink-soft);margin-top:8px;"></p>
   </section>
@@ -589,7 +586,6 @@
             <li data-en="Search AY2026 courses and check class codes, instructors, teaching languages, schedules, rooms, protected team codes, and summarized syllabus details.">2026年度の科目を検索し、時間割コード、教員、開講言語、曜日・時限、教室、保護されたチームコード、シラバスの要約を確認できます。</li>
             <li data-en="Select individual class sections and organize them in My Timetable, including Japanese and English sections separately.">日英を含む各セクションを個別に選び、マイ時間割で整理できます。</li>
             <li data-en="Check the academic calendar, intensive-course dates, and the annual Evening Lounge schedule.">学年暦、集中講義の日程、イブニングラウンジの年間予定を確認できます。</li>
-            <li data-en="Export selected courses as a file for importing into a calendar app.">選んだ授業をカレンダーアプリへ取り込むためのファイルとして書き出せます。</li>
           </ul>
         </div>
         <div class="ruleCard capabilityCard cannot">
@@ -6944,7 +6940,7 @@ function renderTimetable(){
   renderToday();
 }
 
-// ---- .ics 書き出し ----
+// ---- 授業時間 ----
 const PERIOD_TIMES = {
   1:['09:00','10:40'],
   2:['10:50','12:30'],
@@ -6953,7 +6949,6 @@ const PERIOD_TIMES = {
   5:['17:10','18:50'],
   6:['19:00','20:40']
 };
-const DOW = {'日':0,'月':1,'火':2,'水':3,'木':4,'金':5,'土':6};
 const DAY_EN = {'月':'Mon','火':'Tue','水':'Wed','木':'Thu','金':'Fri','土':'Sat','日':'Sun'};
 function pad2(n){ return String(n).padStart(2,'0'); }
 
@@ -7027,69 +7022,6 @@ function quarterRangeFor(term){
   if(term === 'Full-Year'){ return ['2026-04-13','2027-02-22']; }
   return null; // Intensive など、決まった週内の曜日・時限を持たないもの
 }
-function nextDateForWeekday(startDateStr, targetDow){
-  const d = new Date(startDateStr+'T00:00:00');
-  while(d.getDay() !== targetDow){ d.setDate(d.getDate()+1); }
-  return d;
-}
-function icsEscape(str){
-  if(str === null || str === undefined) return '';
-  return String(str)
-    .replace(/\\/g, '\\\\')
-    .replace(/;/g, '\\;')
-    .replace(/,/g, '\\,')
-    .replace(/\r\n|\n|\r/g, '\\n');
-}
-function buildICS(){
-  const skipped = [];
-  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//eikei-navi//JA','CALSCALE:GREGORIAN'];
-  let n = 0;
-  myTimetable.forEach(item => {
-    const periods = parseDayPeriod(item.day);
-    const range = quarterRangeFor(item.term);
-    if(!periods.length || !range){ skipped.push(item.courseJp + '（曜日時限不明 or 集中講義）'); return; }
-    periods.forEach(p => {
-      const times = PERIOD_TIMES[p.period];
-      if(!times){ skipped.push(item.courseJp + `（${p.period}限は時刻未確認）`); return; }
-      const dow = DOW[p.day];
-      const first = nextDateForWeekday(range[0], dow);
-      const until = new Date(range[1]+'T00:00:00');
-      if(first > until) return;
-      const dstr = first.getFullYear()+pad2(first.getMonth()+1)+pad2(first.getDate());
-      const untilStr = until.getFullYear()+pad2(until.getMonth()+1)+pad2(until.getDate())+'T235959';
-      n++;
-      lines.push('BEGIN:VEVENT');
-      lines.push('UID:eikei-navi-'+n+'-'+dstr+'@local');
-      lines.push('DTSTAMP:20260831T000000Z');
-      lines.push(`DTSTART;TZID=Asia/Tokyo:${dstr}T${times[0].replace(':','')}00`);
-      lines.push(`DTEND;TZID=Asia/Tokyo:${dstr}T${times[1].replace(':','')}00`);
-      lines.push(`RRULE:FREQ=WEEKLY;UNTIL=${untilStr}`);
-      lines.push('SUMMARY:'+icsEscape(item.courseJp));
-      lines.push('DESCRIPTION:'+icsEscape('担当：'+item.teacher+'（'+item.term+'）'));
-      lines.push('END:VEVENT');
-    });
-  });
-  lines.push('END:VCALENDAR');
-  return {text: lines.join('\r\n'), skipped};
-}
-document.getElementById('icsBtn').addEventListener('click', () => {
-  const {text, skipped} = buildICS();
-  const note = document.getElementById('icsNote');
-  if(!myTimetable.length){
-    note.textContent = 'マイ時間割に何も追加されていません。先にシラバス検索タブで科目を追加してください。';
-    return;
-  }
-  const blob = new Blob([text], {type:'text/calendar;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'eikei-navi-timetable.ics';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  note.textContent = skipped.length
-    ? 'ダウンロードしました。ただし次の授業は曜日・時限が未定のため含まれていません： ' + skipped.map(s => s.split('（')[0]).join('、')
-    : 'ダウンロードしました。';
-});
-
 document.getElementById('clearTimetableBtn').addEventListener('click', () => {
   const note = document.getElementById('storageNote');
   if(!myTimetable.length){
