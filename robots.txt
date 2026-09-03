@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://masa-hare.github.io/eikei-navi/sitemap.xml
