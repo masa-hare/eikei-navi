@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-goSyPgSOf0gzG2mUVntt5ZT+GDStfb00KtzYcG0/HuM='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-VRZZW5Td764N4L9DPenYzDAZ0pR11X9aqK7eOPY8vI8='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -387,15 +387,6 @@
     margin-top:10px;
   }
   .dangerBtn:active{background:#F1EBDD;}
-  .installBtn{
-    font-family:-apple-system,"Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
-    font-size:12.5px;font-weight:700;
-    border:1.5px solid var(--coral);
-    background:var(--coral-soft);color:var(--ink);
-    border-radius:100px;padding:8px 16px;min-height:44px;
-    cursor:pointer;display:none;margin-top:10px;
-  }
-  .installBtn:active{background:var(--coral);color:#fff;}
   .ttTable{width:100%;border-collapse:collapse;font-size:12.5px;}
   .ttTable th, .ttTable td{
     border:1px solid var(--line);padding:6px;vertical-align:top;text-align:left;
@@ -521,7 +512,6 @@
     </div>
     <h1 class="display">叡啓<span>Navi</span></h1>
     <p class="sub" data-en="A friendlier, easier way to search Eikei University's syllabus.">叡啓大学のシラバスを、もっと探しやすく・見やすく整えました。</p>
-    <button id="installBtn" class="installBtn" data-en="Add to Home Screen">ホーム画面に追加</button>
   </header>
 
   <div id="todayCard"></div>
@@ -691,9 +681,25 @@
     <details class="ruleDetails">
       <summary data-en="Add Eikei Navi to your Home Screen (PWA)">叡啓Naviをホーム画面に追加（PWA）</summary>
       <div class="ruleDetailsBody">
-        <p data-en="When opened from its published HTTPS address, Eikei Navi can be installed like an app. It then opens from an icon on your Home Screen and can use previously loaded app files while offline. My Timetable data remains stored only in that browser on that device.">公開後のHTTPSアドレスから開くと、叡啓Naviをアプリのように端末へ追加できます。ホーム画面のアイコンから起動でき、読み込み済みのアプリ本体はオフラインでも利用できます。マイ時間割のデータは、引き続きその端末・ブラウザ内だけに保存されます。</p>
-        <button type="button" id="installRulesBtn" class="pillBtn" data-en="Install Eikei Navi">ホーム画面に追加</button>
-        <p id="installRulesStatus" class="ruleNote" role="status" aria-live="polite" data-en="On iPhone/iPad, use Safari's Share button and select Add to Home Screen. On supported Android/PC browsers, the button above opens the install screen.">iPhone・iPadではSafariの共有ボタンから「ホーム画面に追加」を選びます。対応するAndroid・PCブラウザでは、上のボタンからインストール画面を開けます。</p>
+        <p data-en="Add Eikei Navi from your browser menu. Once added, it opens from an icon on your Home Screen and previously loaded app files remain available offline. My Timetable data continues to be stored only in that browser on that device.">ブラウザのメニューから叡啓Naviをホーム画面へ追加できます。追加後はホーム画面のアイコンから起動でき、読み込み済みのアプリ本体はオフラインでも利用できます。マイ時間割のデータは、引き続きその端末・ブラウザ内だけに保存されます。</p>
+
+        <p class="ruleSubhead" data-en="iPhone / iPad (Safari)">iPhone・iPad（Safari）</p>
+        <ol class="ruleList">
+          <li data-en="Open the published Eikei Navi page in Safari. If it is open inside Teams, LINE, or another app, choose Open in Safari first.">公開版の叡啓NaviをSafariで開きます。Teams・LINEなどのアプリ内で開いている場合は、先に「Safariで開く」を選びます。</li>
+          <li data-en="Tap Safari's Share button (a square with an upward arrow).">Safariの共有ボタン（四角から上向き矢印が出ている記号）をタップします。</li>
+          <li data-en="Scroll through the actions and select Add to Home Screen.">操作一覧をスクロールして「ホーム画面に追加」を選びます。</li>
+          <li data-en="Check the displayed name, then tap Add in the upper-right corner.">表示名を確認し、右上の「追加」をタップします。</li>
+        </ol>
+
+        <p class="ruleSubhead" data-en="Android (Chrome)">Android（Chrome）</p>
+        <ol class="ruleList">
+          <li data-en="Open the published Eikei Navi page in Chrome.">公開版の叡啓NaviをChromeで開きます。</li>
+          <li data-en="Tap the three-dot menu in the upper-right corner.">右上の3点メニューをタップします。</li>
+          <li data-en="Select Install app or Add to Home screen.">「アプリをインストール」または「ホーム画面に追加」を選びます。</li>
+          <li data-en="Confirm by tapping Install or Add.">確認画面で「インストール」または「追加」をタップします。</li>
+        </ol>
+
+        <p class="ruleNote" data-en="Use the published HTTPS address, not a file opened directly from your device. If the menu item does not appear, reload the page once in Safari or Chrome and check the browser menu again. Menu labels may vary slightly by OS and browser version.">端末内のファイルを直接開いた画面ではなく、公開版のHTTPSアドレスを利用してください。項目が出ない場合はSafariまたはChromeでページを一度再読み込みし、ブラウザのメニューをもう一度確認してください。OS・ブラウザのバージョンにより項目名が少し異なる場合があります。</p>
       </div>
     </details>
 
@@ -7413,86 +7419,6 @@ if('serviceWorker' in navigator){
   });
 }
 
-// ---- ホーム画面に追加ボタン ----
-function isIOSDevice(){
-  return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-}
-function isStandaloneMode(){
-  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
-}
-(function setupInstallButton(){
-  const installBtn = document.getElementById('installBtn');
-  const rulesBtn = document.getElementById('installRulesBtn');
-  const rulesStatus = document.getElementById('installRulesStatus');
-  if(!installBtn || !rulesBtn) return;
-  let deferredPrompt = null;
-
-  function setInstallStatus(ja, en){
-    if(rulesStatus) rulesStatus.textContent = L(ja, en);
-  }
-  function showIOSGuide(){
-    setInstallStatus(
-      'Safariの共有アイコン（□に↑）をタップし、「ホーム画面に追加」を選んでください。',
-      'In Safari, tap the Share icon (square with an up arrow), then choose "Add to Home Screen".'
-    );
-  }
-  async function requestInstall(){
-    if(isStandaloneMode()){
-      setInstallStatus('この端末には追加済みです。','Eikei Navi is already installed on this device.');
-      return;
-    }
-    if(isIOSDevice()){
-      showIOSGuide();
-      return;
-    }
-    if(deferredPrompt){
-      deferredPrompt.prompt();
-      let choice = null;
-      try{ choice = await deferredPrompt.userChoice; }catch(e){}
-      deferredPrompt = null;
-      if(choice && choice.outcome === 'accepted'){
-        setInstallStatus('ホーム画面への追加を開始しました。','Installation has started.');
-        installBtn.style.display = 'none';
-      }else{
-        setInstallStatus('追加はキャンセルされました。必要なときにもう一度押してください。','Installation was cancelled. You can try again later.');
-      }
-      return;
-    }
-    if(location.protocol === 'file:'){
-      setInstallStatus(
-        'ローカルファイル（file://）からはPWAを追加できません。公開後のHTTPSアドレスをSafariまたはChromeで開いてください。',
-        'A PWA cannot be installed from a local file (file://). Open the published HTTPS address in Safari or Chrome.'
-      );
-    }else{
-      setInstallStatus(
-        'このブラウザでは自動の追加画面を開けません。ブラウザのメニューから「アプリをインストール」または「ホーム画面に追加」を選んでください。',
-        'The automatic install screen is unavailable in this browser. Use the browser menu and choose "Install app" or "Add to Home Screen".'
-      );
-    }
-  }
-
-  rulesBtn.addEventListener('click', requestInstall);
-  if(isStandaloneMode()){
-    rulesBtn.disabled = true;
-    rulesBtn.textContent = L('追加済み','Installed');
-    setInstallStatus('この端末には追加済みです。','Eikei Navi is already installed on this device.');
-    return;
-  }
-  if(isIOSDevice()) installBtn.style.display = 'inline-block';
-  installBtn.addEventListener('click', requestInstall);
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.style.display = 'inline-block';
-  });
-  window.addEventListener('appinstalled', () => {
-    installBtn.style.display = 'none';
-    rulesBtn.disabled = true;
-    rulesBtn.textContent = L('追加済み','Installed');
-    setInstallStatus('ホーム画面に追加しました。','Eikei Navi was installed.');
-    deferredPrompt = null;
-  });
-})();
 </script>
 </body>
 </html>
