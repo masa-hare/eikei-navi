@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-xBflCC54LvRi1bkvNM0QzVHG4HgMOtLpVXhEJUJdQF4='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GOoOyoY19S47g4L1xZI/bojUOGtLwEx0OE4zZy0xOeQ='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -191,6 +191,12 @@
     padding:3px 9px;border-radius:100px;
     white-space:normal;text-align:center;line-height:1.35;
   }
+  .windowTag,.daySummary{
+    width:max-content;max-width:100%;font-size:10.5px;font-weight:700;
+    padding:2px 7px;border-radius:100px;text-align:center;line-height:1.35;
+  }
+  .windowTag{background:var(--coral-soft);color:#8C351E;}
+  .daySummary{background:#E9E5D8;color:var(--ink-soft);}
   .summary{
     font-size:13.5px;color:var(--ink-soft);margin-top:6px;display:none;
   }
@@ -307,6 +313,7 @@
   .syllabusUnavailable b{color:var(--ink);}
 
   @media (max-width:480px){
+    .search-row select{flex:1 1 100%;}
     .cal-item{grid-template-columns:1fr;gap:3px;padding-left:14px;}
     .cal-date{font-size:13px;color:var(--ink-soft);}
     .ruleCompactTable,.ruleCompactTable tbody,.ttTable,.ttTable tbody{display:block;width:100%;min-width:0!important;}
@@ -525,6 +532,13 @@
       <select id="categoryFilter"><option value="" data-en="All categories">すべての区分</option></select>
       <label class="srOnly" for="termFilter" data-en="Quarter">学期</label>
       <select id="termFilter"><option value="" data-en="All quarters">すべての学期</option></select>
+      <label class="srOnly" for="windowFilter" data-en="Liberal Arts window">ウィンドウ</label>
+      <select id="windowFilter">
+        <option value="" data-en="All windows">すべてのウィンドウ</option>
+        <option value="identity" data-en="Identity Design">アイデンティティデザイン</option>
+        <option value="business" data-en="Business Design">ビジネスデザイン</option>
+        <option value="ecosystem" data-en="Ecosystem Design">エコシステムデザイン</option>
+      </select>
     </div>
     <p class="count"><b id="resultCount">0</b> <span data-en="results / ">件 / 全</span><span id="totalCount">0</span><span data-en="total">件</span></p>
     <div id="courseList"></div>
@@ -567,7 +581,7 @@
         <div class="ruleCard capabilityCard can">
           <b data-en="What you can do">このサイトでできること</b>
           <ul>
-            <li data-en="Search AY2026 courses and check class codes, instructors, teaching languages, schedules, rooms, team codes, and summarized syllabus details.">2026年度の科目を検索し、時間割コード、教員、開講言語、曜日・時限、教室、チームコード、シラバスの要約を確認できます。</li>
+            <li data-en="Search AY2026 courses by category, quarter, or Liberal Arts window, and check class codes, instructors, teaching languages, schedules, rooms, team codes, and summarized syllabus details.">2026年度の科目を科目区分・学期・リベラルアーツのウィンドウで絞り込み、時間割コード、教員、開講言語、曜日・時限、教室、チームコード、シラバスの要約を確認できます。</li>
             <li data-en="Select individual class sections and organize them in My Timetable, including Japanese and English sections separately.">日英を含む各セクションを個別に選び、マイ時間割で整理できます。</li>
             <li data-en="Check the academic calendar, intensive-course dates, and the annual Evening Lounge schedule.">学年暦、集中講義の日程、イブニングラウンジの年間予定を確認できます。</li>
           </ul>
@@ -6984,6 +6998,27 @@ const CATEGORY_EN = {
   '実践科目':'Capstone Course','体験・実践プログラム':'Experiential Programs','日本語':'Japanese Language',
   '課題解決演習':'Project-Based Learning','卒業プロジェクト':'Degree Project'
 };
+const WINDOW_LABELS = {
+  identity:['アイデンティティデザイン','Identity Design'],
+  business:['ビジネスデザイン','Business Design'],
+  ecosystem:['エコシステムデザイン','Ecosystem Design']
+};
+// 2026年度の公式カリキュラムに記載されたリベラルアーツ発展科目のウィンドウ区分。
+// 入門・基盤科目はウィンドウ対象ではないため、ここには含めない。
+const COURSE_WINDOWS = {
+  '哲学・倫理学':'identity','多文化共生社会論':'identity','メディア論':'identity',
+  '日本文化論':'identity','異文化論':'identity','科学哲学概論':'identity',
+  '公共芸術論':'identity','公共経営論':'identity','地域協働論':'identity',
+  '社会心理学概論':'identity','認知科学概論':'identity','ヘルスケアサービス論':'identity',
+  '経営戦略・組織論':'business','マーケティング論':'business','ファイナンス論':'business',
+  '社会起業家論':'business','社会経済システム論':'business','産業・ビジネスモデル論':'business',
+  'バイオテクノロジー論':'business','科学技術史':'business',
+  '文化人類学概論':'ecosystem','フィールドワーク研究':'ecosystem','地域活性論':'ecosystem',
+  '開発経済学':'ecosystem','自然災害論':'ecosystem','環境経済学':'ecosystem',
+  '都市環境論':'ecosystem','環境工学':'ecosystem','生物多様性論':'ecosystem',
+  '地球環境論':'ecosystem','生態学':'ecosystem'
+};
+const windowFilterEl = document.getElementById('windowFilter');
 const TERM_ORDER = ['Spring','Summer','Autumn','Winter','Intensive'];
 const TERM_LABEL = {Spring:'春（Spring）',Summer:'夏（Summer）',Autumn:'秋（Autumn）',Winter:'冬（Winter）',Intensive:'集中'};
 const TERM_LABEL_EN = {Spring:'Spring',Summer:'Summer',Autumn:'Autumn',Winter:'Winter',Intensive:'Intensive'};
@@ -7041,6 +7076,20 @@ function matchesSearch(hay, terms){
   return terms.every(t => fuzzyIncludes(hay, t)); // すべてのキーワードを含めばヒット（AND検索）
 }
 
+function courseDaySummaryHTML(sections){
+  const dayOrder = ['月','火','水','木','金','土','日'];
+  const days = new Set();
+  let hasIntensive = false;
+  sections.forEach(section => {
+    parseDayPeriod(section.day).forEach(slot => days.add(slot.day));
+    if(section.term === 'Intensive') hasIntensive = true;
+  });
+  const labels = dayOrder.filter(day => days.has(day)).map(day => L(day,DAY_EN[day]));
+  if(hasIntensive) labels.push(L('集中','Intensive'));
+  const text = labels.length ? labels.join('・') : L('曜日未定','Day TBA');
+  return `<div class="daySummary" title="${escapeHTML(L('開講曜日：','Days: ')+text)}">${escapeHTML(text)}</div>`;
+}
+
 function escapeHTML(str){
   if(str === null || str === undefined) return '';
   return String(str)
@@ -7066,19 +7115,23 @@ function renderCourses(){
   const queryTerms = normalizeQuery(q).split(/\s+/).filter(Boolean);
   const cat = categoryFilter.value;
   const term = termFilter.value;
+  const selectedWindow = windowFilterEl.value;
   const filtered = COURSES.filter(([en, jp, category, summary, teacher]) => {
     const matchesCat = !cat || category === cat;
+    const courseWindow = COURSE_WINDOWS[jp] || '';
+    const matchesWindow = !selectedWindow || courseWindow === selectedWindow;
     const offeredSections = findSections(en, jp);
     const matchesTerm = !term || offeredSections.some(s => s.term === term);
     let hay = COURSE_SEARCH_INDEX_CACHE.get(en);
     if(!hay){
       const syllabusText = offeredSections.map(s => s.syllabus ? Object.values(s.syllabus).join(' ') : '').join(' ');
       const sectionText = offeredSections.map(s => `${s.code} ${s.day} ${s.teacher} ${s.language.ja} ${s.language.en}`).join(' ');
-      hay = normalizeQuery(en + jp + summary + teacher + syllabusText + sectionText);
+      const windowLabels = courseWindow ? WINDOW_LABELS[courseWindow].join(' ') : '';
+      hay = normalizeQuery(en + jp + summary + teacher + syllabusText + sectionText + windowLabels);
       COURSE_SEARCH_INDEX_CACHE.set(en, hay);
     }
     const matchesQ = matchesSearch(hay, queryTerms);
-    return matchesCat && matchesTerm && matchesQ;
+    return matchesCat && matchesWindow && matchesTerm && matchesQ;
   });
   resultCount.textContent = filtered.length;
   courseList.innerHTML = '';
@@ -7093,6 +7146,11 @@ function renderCourses(){
     const languageSummaryHTML = languageCodes.length
       ? languageCodes.map(code => languageBadgeHTML(`A000${code}`, false)).join('')
       : `<span class="languageBadge unknown">${L('開講言語未確認','Language not confirmed')}</span>`;
+    const courseWindow = COURSE_WINDOWS[jp] || '';
+    const windowTagHTML = courseWindow
+      ? `<div class="windowTag">${escapeHTML(L(...WINDOW_LABELS[courseWindow]))}</div>`
+      : '';
+    const daySummaryHTML = courseDaySummaryHTML(sections);
     let sectionsHTML;
     if(sections.length){
       sectionsHTML = `<p style="margin:0 0 6px;font-size:12px;color:var(--ink-soft);">${L('2026年度 開講セクション','2026 Offered Sections')}</p>` +
@@ -7120,7 +7178,9 @@ function renderCourses(){
         <div class="name">${highlight(primaryName,q)}<span class="en">${highlight(secondaryName,q)}</span></div>
         <div class="tagStack">
           <div class="tag">${L(category, CATEGORY_EN[category] || category)}</div>
+          ${windowTagHTML}
           <div class="languageSummary" aria-label="${L('2026年度の開講言語','Teaching languages in 2026')}">${languageSummaryHTML}</div>
+          ${daySummaryHTML}
         </div>
       </div>
       <div class="summary">
@@ -7152,6 +7212,7 @@ searchInput.addEventListener('input', () => {
 });
 categoryFilter.addEventListener('change', renderCourses);
 termFilter.addEventListener('change', renderCourses);
+windowFilterEl.addEventListener('change', renderCourses);
 // ---- render: calendar（学期ごとにアコーディオンで表示、現在の学期だけ自動で開く） ----
 const calList = document.getElementById('calList');
 const today = new Date();
