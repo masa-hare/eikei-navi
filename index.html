@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-QsnJLhT7mqIpH7jEXlSBt6IWhljIZNUxr1YfIxlLHVA='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-bxCmvE18AMLOhWcuSMgfH314VIaP6vTtG0/wcfjLlqE='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -6758,6 +6758,7 @@ function loadTimetable(){
 function saveTimetable(){
   try{ localStorage.setItem(TIMETABLE_STORAGE_KEY, JSON.stringify(myTimetable)); }
   catch(e){ /* 保存できなくても一覧表示自体は続行 */ }
+  if(creditGroupingReady)renderCreditSuggestions();
 }
 function sectionKey(code, en, teacher, day){
   const sectionCode = String(code || '').trim();
@@ -7545,11 +7546,11 @@ const creditCatalog = COURSES.filter(c => c[2] !== '日本語').map(([en,jp,cate
   if(['フィールドワーク研究','環境経済学'].includes(jp)) field='社会';
   return {en,jp,category,units,group,field,window:COURSE_WINDOWS[jp],englishOnly:category==='IEP'||category==='実践英語（基盤科目）'||jp.startsWith('海外'),japaneseOnly:jp==='日本語アカデミックライティング'};
 });
-function creditSummary(){
-  const selected=creditCatalog.filter(c=>creditState.has(c.jp));
+function creditSummary(state=creditState){
+  const selected=creditCatalog.filter(c=>state.has(c.jp));
   const sum=fn=>selected.filter(fn).reduce((n,c)=>n+c.units,0);
   const spring=creditEl('creditEntry').value==='spring';
-  const checks=[['合計',sum(()=>true),124],['英語開講',sum(c=>creditState.get(c.jp)==='en'),62]];
+  const checks=[['合計',sum(()=>true),124],['英語開講',sum(c=>state.get(c.jp)==='en'),62]];
   if(spring) checks.push(['IEP',sum(c=>c.category==='IEP'),20]);
   checks.push(['実践英語・基盤',sum(c=>c.category==='実践英語（基盤科目）'),spring?4:8],['基本ツール合計',sum(c=>['ICT・データサイエンス','思考系'].includes(c.category)),18],['基本ツール必修',sum(c=>creditToolRequired.includes(c.jp)),10],['基本ツール選択',sum(c=>['ICT・データサイエンス','思考系'].includes(c.category)&&!creditToolRequired.includes(c.jp)),8],['リベラルアーツ合計',sum(c=>c.category.startsWith('リベラルアーツ')||c.category==='実践科目'),43],['入門必修',sum(c=>creditIntro.includes(c.jp)),13],['基盤科目',sum(c=>creditFoundation.includes(c.jp)),8]);
   for(const f of ['人','社会','自然']) checks.push(['基盤・'+f,sum(c=>creditFoundation.includes(c.jp)&&c.field===f),2]);
@@ -7581,12 +7582,21 @@ function renderCreditResults(){
 }
 function renderCreditSuggestions(){
   const root=creditEl('creditSuggestions');root.replaceChildren();
-  const {checks,windows}=creditSummary();const remaining=name=>{const row=checks.find(r=>r[0]===name);return row?Math.max(0,row[2]-row[1]):0;};
+  const projected=new Map(creditState);
+  for(const item of myTimetable){
+    const course=creditCatalog.find(c=>c.jp===item.courseJp||c.en===item.courseEn);
+    if(!course||projected.has(course.jp))continue;
+    const code=String(item.code||'').match(/^[A-Z]\d{3}([JE])/);
+    projected.set(course.jp,code?.[1]==='E'?'en':'ja');
+  }
+  const planned=projected.size-creditState.size;
+  const note=document.createElement('p');note.textContent=L('マイ時間割の未修得'+planned+'科目を履修予定として反映。すべて修得した場合にも不足する区分を優先します。修得済み単位には加算しません。','Includes '+planned+' planned, uncompleted courses from My Timetable. Priorities reflect gaps remaining if you pass them all. Earned credit totals are unchanged.');root.append(note);
+  const {checks,windows}=creditSummary(projected);const remaining=name=>{const row=checks.find(r=>r[0]===name);return row?Math.max(0,row[2]-row[1]):0;};
   const w=creditEl('creditWindow').value;const ws=windows[Object.keys(WINDOW_LABELS).indexOf(w)];
   const windowNeeds=ws.units<14||ws.fields.some(n=>n<2);
   const suggestions=[];
   for(const c of creditCatalog){
-    if(creditState.has(c.jp))continue;
+    if(projected.has(c.jp))continue;
     const sections=findSections(c.en,c.jp).filter(s=>s.term===creditEl('creditTerm').value);
     if(!sections.length)continue;
     const reasons=[];
@@ -7603,7 +7613,7 @@ function renderCreditSuggestions(){
     if(remaining('英語開講')&&sections.some(s=>s.language.code==='E'))reasons.push('英で修得すると英語単位に算入');
     if(reasons.length)suggestions.push({c,reasons});
   }
-  if(!suggestions.length){root.textContent='選択した学期に該当する候補はありません。他の学期も確認してください。';translateCreditUI();return;}
+  if(!suggestions.length){const empty=document.createElement('p');empty.textContent='選択した学期に該当する候補はありません。他の学期も確認してください。';root.append(empty);translateCreditUI();return;}
   const score=({c})=>{
     let n=0;
     if(creditIntro.includes(c.jp)||creditToolRequired.includes(c.jp)||['課題解決演習','卒業プロジェクト','実践科目'].includes(c.category))n+=100;
@@ -7683,6 +7693,7 @@ function showCreditStep(output){
 creditEl('creditInputStep').addEventListener('click',()=>showCreditStep(false));
 creditEl('creditResultStep').addEventListener('click',()=>showCreditStep(true));
 creditEl('creditNext').addEventListener('click',()=>showCreditStep(true));
+document.querySelector('[data-tab="credits"]').addEventListener('click',renderCreditSuggestions);
 creditEl('creditPlanCandidates').addEventListener('click',()=>{creditCandidates=!creditCandidates;creditEl('creditSearch').value='';creditEl('creditSelectedOnly').checked=false;renderCreditList();});
 creditEl('creditClear').addEventListener('click',()=>{creditState.clear();creditCandidates=false;creditEl('creditComplete').checked=false;creditEl('creditSelectedOnly').checked=false;creditEl('creditSearch').value='';renderCreditList();renderCreditResults();});
 creditEl('viewPlan').addEventListener('click',()=>document.querySelector('[data-tab="timetable"]').click());
