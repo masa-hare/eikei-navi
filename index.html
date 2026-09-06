@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-zdpOC5STF11oUwQISqqV42u2V0caZfp0gKUIt8aJ/7Y='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-QsnJLhT7mqIpH7jEXlSBt6IWhljIZNUxr1YfIxlLHVA='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -7225,7 +7225,9 @@ function highlight(text, q){
 }
 
 const COURSE_SEARCH_INDEX_CACHE = new Map();
+let creditGroupingReady = false;
 function renderCourses(){
+  const earnedWasOpen = !!courseList.querySelector('#earnedCourses[open]');
   const openCourseNames = new Set(Array.from(courseList.querySelectorAll('.card.open')).map(card => card.dataset.courseName));
   const q = searchInput.value.trim();
   const queryTerms = normalizeQuery(q).split(/\s+/).filter(Boolean);
@@ -7330,6 +7332,16 @@ function renderCourses(){
     });
     courseList.appendChild(card);
   });
+  if(creditGroupingReady){
+    const earnedCards=[...courseList.querySelectorAll('.card')].filter(card=>creditCatalog.some(c=>c.en===card.dataset.courseName&&creditState.has(c.jp)));
+    if(earnedCards.length){
+      const group=document.createElement('details');group.id='earnedCourses';group.open=earnedWasOpen;
+      group.style.cssText='margin-top:24px;padding:16px;background:#f0f5ef;border:1px solid #a9bcae;border-radius:14px;';
+      const summary=document.createElement('summary');summary.style.cssText='cursor:pointer;font-weight:700;padding:8px 0;';
+      summary.textContent=L('修得済み科目（'+earnedCards.length+'科目）— 押して表示','Completed courses ('+earnedCards.length+') — Open to view');
+      group.append(summary,...earnedCards);courseList.append(group);
+    }
+  }
   refreshAddButtons();
 }
 let searchDebounceTimer = null;
@@ -7682,6 +7694,7 @@ function saveCreditSelections(){
     else localStorage.setItem(CREDIT_STORAGE_KEY,JSON.stringify({version:1,year:creditEl('creditYear').value,entry:creditEl('creditEntry').value,courses:[...creditState]}));
     creditEl('creditStorageNote').textContent='';
   }catch{creditEl('creditStorageNote').textContent=L('このブラウザでは保存できません。再読み込みすると入力が消えます。','Storage unavailable. Reloading will clear your selections.');}
+  if(creditGroupingReady)renderCourses();
 }
 try{
   const raw=localStorage.getItem(CREDIT_STORAGE_KEY);
@@ -7693,6 +7706,7 @@ try{
     }
   }
 }catch{ /* Invalid saved input is not interpreted as code or HTML. */ }
+creditGroupingReady=true;
 renderCreditList();renderCreditResults();
 // ---- PWA：オフライン対応・ホーム画面追加用のService Worker登録 ----
 // sw.js が同じ場所に無い環境（アーティファクトとして開いた場合など）では静かに失敗するだけで、他の機能には影響しない
