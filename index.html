@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-1sLImP1/M7bPthKB1W/1CXu6XCmanFiB84yCgMLMUME='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Gz+WfEFu33GRS443o5P+EH35D/GnORNPGhSD2+mUWbc='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -7522,7 +7522,7 @@ function creditSummary(){
   const spring=creditEl('creditEntry').value==='spring';
   const checks=[['合計',sum(()=>true),124],['英語開講',sum(c=>creditState.get(c.jp)==='en'),62]];
   if(spring) checks.push(['IEP',sum(c=>c.category==='IEP'),20]);
-  checks.push(['実践英語・基盤',sum(c=>c.category==='実践英語（基盤科目）'),spring?4:8],['基本ツール合計',sum(c=>['ICT・データサイエンス','思考系'].includes(c.category)),18],['基本ツール必修',sum(c=>creditToolRequired.includes(c.jp)),10],['基本ツール選択',sum(c=>['ICT・データサイエンス','思考系'].includes(c.category)&&!creditToolRequired.includes(c.jp)),8],['リベラルアーツ合計',sum(c=>c.category.startsWith('リベラルアーツ')||c.category==='実践科目'),43],['入門必修（入門選択は別途確認）',sum(c=>creditIntro.includes(c.jp)),13],['基盤科目',sum(c=>creditFoundation.includes(c.jp)),8]);
+  checks.push(['実践英語・基盤',sum(c=>c.category==='実践英語（基盤科目）'),spring?4:8],['基本ツール合計',sum(c=>['ICT・データサイエンス','思考系'].includes(c.category)),18],['基本ツール必修',sum(c=>creditToolRequired.includes(c.jp)),10],['基本ツール選択',sum(c=>['ICT・データサイエンス','思考系'].includes(c.category)&&!creditToolRequired.includes(c.jp)),8],['リベラルアーツ合計',sum(c=>c.category.startsWith('リベラルアーツ')||c.category==='実践科目'),43],['入門必修',sum(c=>creditIntro.includes(c.jp)),13],['基盤科目',sum(c=>creditFoundation.includes(c.jp)),8]);
   for(const f of ['人','社会','自然']) checks.push(['基盤・'+f,sum(c=>creditFoundation.includes(c.jp)&&c.field===f),2]);
   checks.push(['体験・実践',sum(c=>c.category==='体験・実践プログラム'),4],['海外プログラム（免除は個別確認）',sum(c=>c.category==='体験・実践プログラム'&&c.jp.startsWith('海外')),2],['課題解決演習',sum(c=>c.category==='課題解決演習'),9],['卒業プロジェクト',sum(c=>c.category==='卒業プロジェクト'),12]);
   checks.push(['実践科目・必修',sum(c=>c.category==='実践科目'),2],['リベラルアーツ選択',sum(c=>c.category.startsWith('リベラルアーツ')&&!creditIntro.includes(c.jp)),28]);
