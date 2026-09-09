@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-bxCmvE18AMLOhWcuSMgfH314VIaP6vTtG0/wcfjLlqE='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-oeA+d38wi6RUwBcalVUXiZ/+qyE8N9tTDMZa1Weufyk='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -6850,6 +6850,15 @@ document.querySelectorAll('#ttDayTabs button').forEach(b => {
   });
 });
 
+function timetableSyllabusLink(item){
+ return `<button type="button" class="ttSyllabusLink" data-syllabus-course="${escapeHTML(item.courseJp)}" style="font:inherit;color:inherit;text-align:left;background:transparent;border:0;padding:4px 0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;" aria-label="${escapeHTML(L(item.courseJp+'のシラバスを開く','Open syllabus: '+item.courseEn))}">${escapeHTML(L(item.courseJp,item.courseEn))}</button>`;
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-syllabus-course]');if(!button)return;
+ document.getElementById('weekdayFilter').value='';categoryFilter.value='';windowFilterEl.value='';termFilter.value='';searchInput.value=button.dataset.syllabusCourse;
+ renderCourses();document.querySelector('[data-tab="syllabus"]').click();
+ const card=courseList.querySelector('.card');if(card){const group=card.closest('details');if(group)group.open=true;card.classList.add('open');card.scrollIntoView({block:'start'});}
+});
 function renderTimetable(){
   if(!selectedQuarter) selectedQuarter = guessCurrentQuarter();
   document.querySelectorAll('#seasonTabs button').forEach(b => {
@@ -6898,7 +6907,7 @@ function renderTimetable(){
       const here = gridded.filter(x => parseDayPeriod(x.day).some(pp => pp.day===d && +pp.period===p));
       html += '<td class="ttCalCell">' + here.map(item => `
         <div class="ttCalCourse">
-          <div class="ttCalName">${escapeHTML(L(item.courseJp,item.courseEn))}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
+          <div class="ttCalName">${timetableSyllabusLink(item)}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
           ${languageBadgeHTML(item.code, false)}
           ${teamCodeHTML(item.code, true)}
           <input type="text" class="roomInput" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+L(item.courseJp,item.courseEn))}">
@@ -6931,7 +6940,7 @@ function renderTimetable(){
     <div class="ttDayRow">
       <div class="period">${period}</div>
       <div class="info">
-        <div class="cname">${escapeHTML(L(item.courseJp,item.courseEn))}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
+        <div class="cname">${timetableSyllabusLink(item)}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
         ${languageBadgeHTML(item.code, true)}
         ${teamCodeHTML(item.code, true)}
         <input type="text" class="roomInput" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+L(item.courseJp,item.courseEn))}">
@@ -6952,7 +6961,7 @@ function renderTimetable(){
 
   ttOther.innerHTML = other.length
     ? `<p style="font-size:13px;color:var(--ink-soft);margin:0 0 8px;">${L('曜日・時限が決まっていない科目（通年など）','Courses without a fixed day/period (full-year, etc.)')}</p>` +
-      other.map(x => `<div class="ttOtherItem"><span>${escapeHTML(L(x.courseJp,x.courseEn))}（${escapeHTML(x.teacher)} / ${escapeHTML(L(TERM_LABEL[x.term]||x.term, TERM_LABEL_EN[x.term]||x.term))}）<br>${languageBadgeHTML(x.code, true)}${x.room ? '<br><span style="color:var(--ink-soft);font-size:12px;">'+L('教室：','Room: ')+escapeHTML(x.room)+'</span>' : ''}${hasTeamCode(x.code) ? '<br>'+teamCodeHTML(x.code, false) : ''}</span><button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>`).join('')
+      other.map(x => `<div class="ttOtherItem"><span>${timetableSyllabusLink(x)}（${escapeHTML(x.teacher)} / ${escapeHTML(L(TERM_LABEL[x.term]||x.term, TERM_LABEL_EN[x.term]||x.term))}）<br>${languageBadgeHTML(x.code, true)}${x.room ? '<br><span style="color:var(--ink-soft);font-size:12px;">'+L('教室：','Room: ')+escapeHTML(x.room)+'</span>' : ''}${hasTeamCode(x.code) ? '<br>'+teamCodeHTML(x.code, false) : ''}</span><button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>`).join('')
     : '';
   ttOther.querySelectorAll('.rm').forEach(el => {
     el.addEventListener('click', () => {
@@ -6969,7 +6978,7 @@ function renderTimetable(){
       withDates.map(x => `<div class="intItem">
         <div class="intDate">${formatIntensiveDates(x.intensiveDates)}</div>
         <div class="intBody">
-          <div class="name">${escapeHTML(L(x.courseJp,x.courseEn))}<span class="en">${escapeHTML(L(x.courseEn,x.courseJp))}</span></div>
+          <div class="name">${timetableSyllabusLink(x)}<span class="en">${escapeHTML(L(x.courseEn,x.courseJp))}</span></div>
           <div class="meta">${languageBadgeHTML(x.code, true)} ${escapeHTML(x.teacher)}${x.room ? ' ・ '+escapeHTML(x.room) : ''}<button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
         </div>
       </div>`).join('')
@@ -7031,7 +7040,7 @@ function renderToday(){
     return `<div class="todayRow">
       <div class="todayTime">${time}</div>
       <div>
-        <div class="todayCourse">${escapeHTML(L(item.courseJp,item.courseEn))}</div>
+        <div class="todayCourse">${timetableSyllabusLink(item)}</div>
         <div class="todayMeta">${languageBadgeHTML(item.code, false)} ${escapeHTML(item.teacher)}${item.room ? ' ・ ' + escapeHTML(item.room) : ' ・ '+L('教室未入力','room not entered')}</div>
       </div>
     </div>`;
@@ -7039,7 +7048,7 @@ function renderToday(){
   rows += intensiveToday.map(item => `<div class="todayRow">
       <div class="todayTime">${L('集中講義','Intensive')}</div>
       <div>
-        <div class="todayCourse">${escapeHTML(L(item.courseJp,item.courseEn))}</div>
+        <div class="todayCourse">${timetableSyllabusLink(item)}</div>
         <div class="todayMeta">${languageBadgeHTML(item.code, false)} ${escapeHTML(item.teacher)}${item.room ? ' ・ ' + escapeHTML(item.room) : ' ・ '+L('教室未入力','room not entered')}</div>
       </div>
     </div>`).join('');
@@ -7577,10 +7586,42 @@ function renderCreditResults(){
   }
   line('全ウィンドウを満たす必要はありません。区分・分野の不足は重なるため、表示された不足単位を足し合わせないでください。');
   line('数学入門・健康学入門は選択科目。入門必修13単位と実践科目2単位で必修15単位です。在学期間・認定・免除は個別確認が必要です。');
+  renderPersonalCreditOverview();
   renderCreditSuggestions();
   translateCreditUI();
 }
+function plannedCreditState(){
+ const projected=new Map(creditState);
+ for(const item of myTimetable){
+  const course=creditCatalog.find(c=>c.jp===item.courseJp||c.en===item.courseEn);
+  if(!course||projected.has(course.jp))continue;
+  const code=String(item.code||'').match(/^[A-Z]\d{3}([JE])/);
+  projected.set(course.jp,code?.[1]==='E'?'en':'ja');
+ }
+ return projected;
+}
+function renderPersonalCreditOverview(){
+ let root=creditEl('personalCreditOverview');
+ if(!root){root=document.createElement('div');root.id='personalCreditOverview';creditEl('creditResults').prepend(root);}
+ root.replaceChildren();
+ const earned=creditSummary(),projectedState=plannedCreditState(),projected=creditSummary(projectedState);
+ const title=document.createElement('h3');title.textContent=L('自分の修得済み・履修中／予定','Your earned and in-progress / planned credits');root.append(title);
+ const note=document.createElement('p');note.textContent=L('単位チェックの選択＝修得済み、マイ時間割の未修得科目＝履修中／予定として集計します。正式な履修登録とは連動しません。同じ科目は日英・学期をまたいでも1回だけ数え、修得済みを優先します。','Credit checker selections are earned; uncompleted My Timetable courses are in progress / planned. This is not linked to official registration. Each course is counted once across languages and quarters, with earned status taking priority.');root.append(note);
+ const totals=document.createElement('p');totals.textContent=L('合計：','Total: ')+earned.checks[0][1]+' + '+(projected.checks[0][1]-earned.checks[0][1])+' = '+projected.checks[0][1]+' / 124 '+L('単位（修得済み＋履修中／予定＝全科目合格時）','credits (earned + in progress / planned = if all passed)');root.append(totals);
+ const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=L('区分別の修得済み・履修中・見込みを確認','View earned, planned and projected credits by category');details.append(summary);root.append(details);
+ const wrap=document.createElement('div');wrap.style.overflowX='auto';wrap.tabIndex=0;const table=document.createElement('table');table.style.cssText='width:100%;min-width:540px;border-collapse:collapse;';wrap.append(table);details.append(wrap);
+ const addRow=(values,header=false)=>{const tr=document.createElement('tr');values.forEach((value,i)=>{const cell=document.createElement(header||i===0?'th':'td');cell.textContent=String(value);cell.style.cssText='padding:10px 6px;text-align:left;border-bottom:1px solid #c9c2ad;';if(header)cell.scope='col';else if(i===0)cell.scope='row';tr.append(cell);});table.append(tr);};
+ addRow([L('区分','Category'),L('下限','Minimum'),L('修得済み','Earned'),L('履修中／予定','In progress / planned'),L('見込み','Projected'),L('見込み不足','Projected shortfall')],true);
+ earned.checks.forEach(([name,n,min],i)=>{const p=projected.checks[i][1];addRow([name,min,n,p-n,p,Math.max(0,min-p)]);});
+ earned.windows.forEach((w,i)=>{const p=projected.windows[i];addRow([w.name,14,w.units,p.units-w.units,p.units,Math.max(0,14-p.units)]);['人','社会','自然'].forEach((f,j)=>addRow(['　'+f,2,w.fields[j],p.fields[j]-w.fields[j],p.fields[j],Math.max(0,2-p.fields[j])]));});
+ const caution=document.createElement('p');caution.textContent=L('ウィンドウは1つで14単位かつ人・社会・自然を各2単位。全ウィンドウの充足は不要です。見込みは合格を保証せず、正式な卒業判定ではありません。','One window needs 14 credits including 2 each in Humanities, Society and Nature; not all windows are required. Projections do not guarantee passing or graduation.');details.append(caution);
+ for(const [label,courses,state] of [[L('修得済み科目','Earned courses'),earned.selected,creditState],[L('履修中／予定の科目','In-progress / planned courses'),projected.selected.filter(c=>!creditState.has(c.jp)),projectedState]]){
+  const list=document.createElement('details'),head=document.createElement('summary');head.textContent=label+' ('+courses.length+')';list.append(head);
+  for(const c of courses){const p=document.createElement('p');p.textContent=L(c.jp,c.en)+' · '+c.units+' '+L('単位','credits')+' · '+(state.get(c.jp)==='en'?L('英語','English'):L('日本語','Japanese'));list.append(p);}root.append(list);
+ }
+}
 function renderCreditSuggestions(){
+  if(creditEl('personalCreditOverview'))renderPersonalCreditOverview();
   const root=creditEl('creditSuggestions');root.replaceChildren();
   const projected=new Map(creditState);
   for(const item of myTimetable){
