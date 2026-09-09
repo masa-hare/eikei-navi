@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-oeA+d38wi6RUwBcalVUXiZ/+qyE8N9tTDMZa1Weufyk='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-MCptiTCIhkT0uokPzZ7JC8C29bLi1rg1MUl2eSCNO7k='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -509,6 +509,16 @@
   .creditRow select{flex:0 0 130px;width:130px;min-height:44px;}
   #creditResults{background:#f3f0e7;border-radius:12px;padding:16px;margin:16px 0;}
   #creditResults p{margin:8px 0;}
+  #creditResults details{margin:14px 0;padding:14px;background:#fff;border:1px solid #d8d2c1;border-radius:12px;}
+  #creditResults summary{font-weight:700;cursor:pointer;}
+  .creditResultGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:14px 0;}
+  .creditResultCard{background:#fff;border:1px solid #d8d2c1;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0;}
+  .creditResultCard strong{font-size:15px;}
+  .creditVerdict{align-self:flex-start;border-radius:20px;padding:4px 10px;font-size:13px;font-weight:700;background:#fff0de;color:#754100;}
+  .creditVerdict.pass{background:#e2f3e8;color:#205c38;}
+  .creditFieldRow{display:flex;flex-wrap:wrap;gap:6px;}
+  .creditFieldRow span{background:#f3f0e7;border-radius:6px;padding:5px 8px;font-size:13px;}
+  @media(max-width:480px){.creditResultGrid{grid-template-columns:1fr;}#creditResults{padding:12px;}}
   #viewPlan{margin:8px 0 20px;}
   #findPlanCourses{display:block;margin:10px 0 22px;}
   .creditControls{row-gap:16px;}
@@ -7528,7 +7538,7 @@ const creditTranslations = {
  '基本ツール選択の不足':'Tool elective gap','リベラルアーツ全体の不足':'Liberal Arts total gap','実践英語の不足':'Practical English gap','体験・実践の不足':'Experiential program gap',
  'リベラルアーツ合計':'Liberal Arts total','リベラルアーツ選択':'Liberal Arts electives','基本ツール合計':'Tools total','基本ツール必修':'Required tools','基本ツール選択':'Tool electives',
  '実践英語・基盤':'Practical English foundation','実践科目・必修':'Required capstone','入門必修':'Required introductory','基盤科目':'Foundation courses','体験・実践':'Experiential programs',
- 'この数値条件は充足':'numerical requirement met','すべて選択済み':'All selected','選択済み':'Selected','未選択':'Not selected','日で修得':'Passed in JA','英で修得':'Passed in EN',
+ '合格':'Pass','すべて選択済み':'All selected','選択済み':'Selected','未選択':'Not selected','日で修得':'Passed in JA','英で修得':'Passed in EN',
  '分野別の不足':'Missing by field','あと最低':'At least ','の未修得科目':' not yet selected','の不足':' gap','英語開講':'English-taught','科目を見る':' more courses','科目':' courses','単位':' credits','修得':'Earned ','あと':'Remaining ','充足':'Met','基盤・':'Foundation · ','合計':'Total','年度入学':' entry','年度':' entry year','入学／':' entry /','ほか':'Show ',
  '人':'Humanities','社会':'Social Science','自然':'Natural Science','春':'Spring','夏':'Summer','秋':'Autumn','冬':'Winter','集中講義':'Intensive'
 };
@@ -7575,17 +7585,36 @@ function renderCreditResults(){
   let target=root;
   const line=t=>{const p=document.createElement('p');p.textContent=t;target.append(p);};
   line((creditEl('creditYear').value==='2024'?'2024年度以前':creditEl('creditYear').value+'年度')+'入学／'+(creditEl('creditComplete').checked?'入力完了としての参考集計':'入力途中：選択済み科目のみの集計')+' · '+selected.length+'科目');
-  for(const [name,n,required] of checks.slice(0,2)) line(name+'：'+n+' / '+required+'単位（あと'+Math.max(0,required-n)+'単位）');
+  const makeCard=(container,name,n,required,missing=Math.max(0,required-n))=>{
+    const card=document.createElement('div');card.className='creditResultCard';
+    const title=document.createElement('strong');title.textContent=name+'：'+n+' / '+required+'単位';
+    const badge=document.createElement('span');badge.className='creditVerdict'+(missing===0?' pass':'');badge.textContent=missing===0?L('合格','Pass'):L('あと'+missing+'単位',missing+' credits needed');
+    card.append(title,badge);container.append(card);return card;
+  };
+  line(L('修得済みだけの判定（履修中・予定は含みません）','Earned-only results (excluding in-progress / planned courses)'));
+  const totals=document.createElement('div');totals.className='creditResultGrid';root.append(totals);
+  for(const [name,n,required] of checks.slice(0,2))makeCard(totals,name,n,required);
   const detail=document.createElement('details');const heading=document.createElement('summary');heading.textContent='区分別：あと何単位？';detail.append(heading);root.append(detail);target=detail;
-  for(const [name,n,required] of checks.slice(2)) line(name+'：'+n+' / '+required+'単位'+(n>=required?'（この数値条件は充足）':'（あと'+(required-n)+'単位）'));
+  const grid=document.createElement('div');grid.className='creditResultGrid';detail.append(grid);
+  let experienceCard;
+  for(const [name,n,required] of checks.slice(2)){
+    if(name.startsWith('海外プログラム')){
+      const child=makeCard(experienceCard||grid,L('うち海外（免除は個別確認）','Of which overseas (exemptions require confirmation)'),n,required);
+      child.style.background='#f3f0e7';
+      const note=document.createElement('small');note.textContent=L('体験・実践4単位の内数です（4＋2ではありません）。','Included in the 4 experiential credits, not an additional 2.');child.append(note);
+    }else{const card=makeCard(grid,name,n,required);if(name==='体験・実践')experienceCard=card;}
+  }
   line('発展科目：少なくとも1つのウィンドウで14単位、かつその中で人・社会・自然を各2単位。');
   for(const w of windows){
     const fieldMissing=w.fields.map(n=>Math.max(0,2-n));
     const missing=Math.max(0,14-w.units,fieldMissing.reduce((a,b)=>a+b,0));
-    line(w.name+'：修得'+w.units+'単位／あと最低'+missing+'単位。分野別の不足：'+['人','社会','自然'].map((f,i)=>f+' '+fieldMissing[i]+'単位').join('・')+(missing===0?'（充足）':''));
+    const card=makeCard(detail,w.name,w.units,14,missing);card.style.margin='10px 0';
+    const fields=document.createElement('div');fields.className='creditFieldRow';
+    ['人','社会','自然'].forEach((f,i)=>{const chip=document.createElement('span');chip.textContent=f+' '+w.fields[i]+'/2';fields.append(chip);});card.append(fields);
   }
   line('全ウィンドウを満たす必要はありません。区分・分野の不足は重なるため、表示された不足単位を足し合わせないでください。');
   line('数学入門・健康学入門は選択科目。入門必修13単位と実践科目2単位で必修15単位です。在学期間・認定・免除は個別確認が必要です。');
+  line(L('「合格」は入力された単位条件の判定です。正式な卒業判定ではありません。','“Pass” refers to the entered credit requirement only, not an official graduation decision.'));
   renderPersonalCreditOverview();
   renderCreditSuggestions();
   translateCreditUI();
@@ -7612,12 +7641,16 @@ function renderPersonalCreditOverview(){
  const wrap=document.createElement('div');wrap.style.overflowX='auto';wrap.tabIndex=0;const table=document.createElement('table');table.style.cssText='width:100%;min-width:540px;border-collapse:collapse;';wrap.append(table);details.append(wrap);
  const addRow=(values,header=false)=>{const tr=document.createElement('tr');values.forEach((value,i)=>{const cell=document.createElement(header||i===0?'th':'td');cell.textContent=String(value);cell.style.cssText='padding:10px 6px;text-align:left;border-bottom:1px solid #c9c2ad;';if(header)cell.scope='col';else if(i===0)cell.scope='row';tr.append(cell);});table.append(tr);};
  addRow([L('区分','Category'),L('下限','Minimum'),L('修得済み','Earned'),L('履修中／予定','In progress / planned'),L('見込み','Projected'),L('見込み不足','Projected shortfall')],true);
- earned.checks.forEach(([name,n,min],i)=>{const p=projected.checks[i][1];addRow([name,min,n,p-n,p,Math.max(0,min-p)]);});
+ earned.checks.forEach(([name,n,min],i)=>{const p=projected.checks[i][1];addRow([name.startsWith('海外プログラム')?L('　└ うち海外','  └ Of which overseas'):name,min,n,p-n,p,Math.max(0,min-p)]);});
  earned.windows.forEach((w,i)=>{const p=projected.windows[i];addRow([w.name,14,w.units,p.units-w.units,p.units,Math.max(0,14-p.units)]);['人','社会','自然'].forEach((f,j)=>addRow(['　'+f,2,w.fields[j],p.fields[j]-w.fields[j],p.fields[j],Math.max(0,2-p.fields[j])]));});
  const caution=document.createElement('p');caution.textContent=L('ウィンドウは1つで14単位かつ人・社会・自然を各2単位。全ウィンドウの充足は不要です。見込みは合格を保証せず、正式な卒業判定ではありません。','One window needs 14 credits including 2 each in Humanities, Society and Nature; not all windows are required. Projections do not guarantee passing or graduation.');details.append(caution);
  for(const [label,courses,state] of [[L('修得済み科目','Earned courses'),earned.selected,creditState],[L('履修中／予定の科目','In-progress / planned courses'),projected.selected.filter(c=>!creditState.has(c.jp)),projectedState]]){
   const list=document.createElement('details'),head=document.createElement('summary');head.textContent=label+' ('+courses.length+')';list.append(head);
-  for(const c of courses){const p=document.createElement('p');p.textContent=L(c.jp,c.en)+' · '+c.units+' '+L('単位','credits')+' · '+(state.get(c.jp)==='en'?L('英語','English'):L('日本語','Japanese'));list.append(p);}root.append(list);
+  for(const c of courses){
+   const p=document.createElement('p');
+   const terms=state===creditState?[]:[...new Set(myTimetable.filter(item=>item.courseJp===c.jp||item.courseEn===c.en).map(item=>L(TERM_LABEL[item.term]||item.term,TERM_LABEL_EN[item.term]||item.term)))];
+   p.textContent=L(c.jp,c.en)+' · '+c.units+' '+L('単位','credits')+' · '+(state.get(c.jp)==='en'?L('英語','English'):L('日本語','Japanese'))+(terms.length?' · '+terms.join(' / ')+' · '+L('履修中／予定','In progress / planned'):'');list.append(p);
+  }root.append(list);
  }
 }
 function renderCreditSuggestions(){
@@ -7694,6 +7727,14 @@ function renderCreditList(){
     const updateGroup=()=>{const all=creditCatalog.filter(c=>c.group===group);const chosen=all.filter(c=>creditState.has(c.jp));const complete=chosen.length===all.length;ds.classList.toggle('creditCompleteGroup',complete);status.textContent=(complete?'すべて選択済み':'選択済み '+chosen.length+' / '+all.length+'科目')+' · '+chosen.reduce((n,c)=>n+c.units,0)+'単位';};
     updateGroup();
     const members=items.filter(c=>c.group===group);
+    if(group==='リベラルアーツ・入門必修'){
+      const hint=document.createElement('p');hint.textContent=L('入門必修の全7科目・13単位を選択します。入門選択・実践科目は含みません。日英が混在する場合は、選択後に各科目の言語を修正してください。','Select all 7 required introductory courses (13 credits), excluding introductory electives and the capstone. Adjust individual languages afterwards if needed.');ds.append(hint);
+      const controls=document.createElement('div');controls.className='creditControls';ds.append(controls);
+      for(const [lang,label] of [['ja','すべて日で修得済み'],['en','すべて英で修得済み']]){
+        const b=document.createElement('button');b.type='button';b.className='pillBtn';b.textContent=label;
+        b.addEventListener('click',()=>{for(const c of creditCatalog.filter(c=>creditIntro.includes(c.jp)))creditState.set(c.jp,lang);creditEl('creditComplete').checked=false;renderCreditList();renderCreditResults();});controls.append(b);
+      }
+    }
     if(group==='課題解決演習'){
       const hint=document.createElement('p');hint.textContent='課題解決入門・ⅠA・ⅠB・Ⅱの計9単位を一括選択します。日英が混在する場合は選択後に各科目を直してください。卒業プロジェクトは含みません。';ds.append(hint);
       for(const [lang,label] of [['ja','すべて日で修得済み'],['en','すべて英で修得済み']]){
