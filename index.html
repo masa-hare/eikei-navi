@@ -4,17 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を検索・確認できる学生制作の非公式ビューアです。">
-<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="robots" content="noindex, nofollow, nosnippet">
 <meta name="application-name" content="叡啓Navi">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="ja_JP">
-<meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
-<meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
-<meta name="twitter:card" content="summary">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-nLpHzFHSZCGcgbMZNWtOe8ZIHqU//XtozHX7T1vxjfk='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
-<meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -678,6 +672,7 @@
   </section>
 
   <section class="panel" id="panel-rules">
+    <details class="ruleBlock"><summary data-en="Public access and shared-origin storage">公開範囲と保存データの注意</summary><p data-en="This is a public URL anyone can access, not a university-authenticated or restricted site. Search indexing is discouraged with noindex, and social preview tags are omitted, but these are not access controls. Existing search results or previews may remain, and apps may create their own previews.">このURLは誰でも閲覧できる公開ページで、大学の認証や限定公開ではありません。検索への掲載を抑えるnoindex設定とSNSプレビュー用タグの削除を行っていますが、アクセス制限ではありません。既存の検索結果・プレビューが残ったり、アプリが独自にプレビューを生成したりする場合があります。</p><p data-en="GitHub Pages projects under the same account share an origin. Scripts on other pages under masa-hare.github.io can read or change stored timetable and earned-course selections. This risk is not resolved by noindex or changing storage keys. Use a trusted personal device; clear saved selections and timetable when appropriate. A dedicated origin is needed for full separation and has not yet been introduced. Data does not automatically migrate to a new origin.">同じアカウントのGitHub Pagesは保存領域のオリジンを共有します。masa-hare.github.io配下の別ページのスクリプトから、保存した時間割や修得済み科目を読み取り・変更できる状態です。noindexや保存キーの変更では解消しません。信頼できる個人端末で使い、必要に応じて保存済みの単位入力・時間割を消去してください。根本的な分離には専用オリジンが必要で、現時点では未導入です。別オリジンへ移行しても保存データは自動では引き継がれません。</p></details>
     <details class="ruleBlock"><summary data-en="Autumn timetable: as of September 1, 2026">秋学期時間割：2026年9月1日時点</summary><p data-en="Source: official September 1 Autumn Quarter Class Schedule. Shared room cells are room pools, not individual assignments. Existing room notes are preserved.">出典：2026年9月1日時点 Autumn quarter 時間割 Class Schedule。複数クラスで共有する教室欄は候補教室の一覧です。実際の割当は公式案内で確認してください。保存済みの教室メモは上書きしません。</p><p data-en="Degree Project Monday periods 5–6 are registration slots; arrange actual hours with your adviser. Overseas program Thursday periods 5–6 follow separate guidance, not a fixed assignment to every program. Intensive date ranges do not imply daily classes; check detailed schedules.">卒業プロジェクトの月5・6限は履修登録上の枠で、実際の指導時間は教員と調整します。海外プログラムの木5・6限は別途ガイダンスに従う枠のため、すべての個別プログラムへ一律に割り当てていません。集中講義の期間表示は毎日開講を意味しないため、詳細日程も確認してください。</p></details>
     <details class="ruleBlock"><summary data-en="Credit checker and privacy">単位チェックと情報の取り扱い</summary><p data-en="Select only courses you have passed or received credit for, and their actual teaching language. This is a reference calculation based on the curriculum for your admission year, not an official graduation decision. My Timetable contains planned courses; it does not mark them as passed.">合格・認定済みの科目と実際の開講言語を選び、入学年度別の教育課程表に基づく不足単位を確認できます。正式な卒業判定ではありません。マイ時間割は履修予定であり、追加しても修得済みにはなりません。</p><p data-en="Credit selections are processed in this browser only. They are saved in this browser, without transmission or device sync. Clear selections after use on shared devices. No files, names, student IDs, grades or GPA are requested. My Timetable is separately saved in this browser. Course suggestions use AY2026 offerings; check prerequisites, timetable conflicts and MyEikei before registering.">単位チェックの選択内容はこのブラウザ内に保存されます。外部送信・端末間の同期はしません。共用端末では利用後に入力を消去してください。ファイル・氏名・学籍番号・成績・GPAの入力はありません。マイ時間割も別途このブラウザに保存されます。追加候補は2026年度の開講情報に基づきます。履修条件・時間の重複・最新情報はMyEikei等で確認してください。</p></details>
     <p class="cal-title" data-en="What Eikei Navi can do and the rules for using it">叡啓Naviでできること・利用時の基本ルール</p>
