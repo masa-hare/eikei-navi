@@ -11,7 +11,7 @@
 <meta property="og:title" content="叡啓Navi | 叡啓大学 非公式ビューア">
 <meta property="og:description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を探しやすくまとめた非公式ツールです。">
 <meta name="twitter:card" content="summary">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-IMG/XNMnMSRtb4YqJ156u5wRGIkYh3UFsw7ARA9hHq8='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cNAvGrPBKU1NhU+qTHC/p+0N4++TN7hp/RNfV221K90='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <meta property="og:url" content="https://masa-hare.github.io/eikei-navi/">
@@ -509,6 +509,18 @@
   .creditRow select{flex:0 0 130px;width:130px;min-height:44px;}
   #creditResults{background:#f3f0e7;border-radius:12px;padding:16px;margin:16px 0;}
   #creditResults p{margin:8px 0;}
+  #termSnapshotDialog{width:calc(100% - 20px);max-width:520px;padding:10px;border:0;border-radius:16px;background:#fff;color:var(--ink);box-sizing:border-box;max-height:calc(100dvh - 20px);overflow:auto;}
+  #termSnapshotDialog::backdrop{background:rgba(0,0,0,.55);}
+  .snapshotTop{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .snapshotTop h2{font-size:18px;margin:6px 0;}
+  #closeTermSnapshot{width:auto;min-width:0;flex:0 0 auto;margin:0;padding:7px 12px;font-size:12px;}
+  #openTermSnapshot{display:block;margin:12px 0 20px;}
+  .snapshotGrid{display:grid;grid-template-columns:20px repeat(5,minmax(0,1fr));grid-template-rows:24px repeat(6,56px);gap:3px;margin:12px 0;background:#eee8dd;padding:4px;border-radius:10px;}
+  .snapshotDay,.snapshotPeriod{font-size:11px;font-weight:700;text-align:center;align-self:center;}
+  .snapshotCell{background:#faf8f2;border-radius:4px;}
+  .snapshotCourse{z-index:1;background:#fce4d8;border:1px solid #dfaa90;border-radius:6px;padding:4px;font-size:12px;font-weight:700;line-height:1.35;overflow-wrap:anywhere;min-width:0;overflow:auto;}
+  .snapshotCourse small{display:block;font-size:10px;font-weight:400;color:#71462e;margin-top:3px;}
+  .snapshotExtra{font-size:11px;margin:8px 0;line-height:1.5;}
   #creditResults details{margin:14px 0;padding:14px;background:#fff;border:1px solid #d8d2c1;border-radius:12px;}
   #creditResults summary{font-weight:700;cursor:pointer;}
   .creditResultGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:14px 0;}
@@ -603,6 +615,11 @@
       <button data-day="木" data-en="Thu">木</button>
       <button data-day="金" data-en="Fri">金</button>
     </div>
+    <button type="button" class="pillBtn" id="openTermSnapshot" data-en="View whole quarter (for screenshots)">学期全体を見る（スクショ用）</button>
+    <dialog id="termSnapshotDialog" aria-labelledby="termSnapshotTitle">
+      <div class="snapshotTop"><h2 id="termSnapshotTitle"></h2><button type="button" class="pillBtn" id="closeTermSnapshot" data-en="Close">閉じる</button></div>
+      <div id="termSnapshotContent"></div>
+    </dialog>
     <div id="ttDayList" class="mobileOnly"></div>
     <div id="ttGrid" class="desktopOnly"></div>
     <div id="myIntensiveList" style="margin-top:18px;"></div>
@@ -6881,6 +6898,31 @@ document.addEventListener('click',event=>{
  renderCourses();document.querySelector('[data-tab="syllabus"]').click();
  const card=courseList.querySelector('.card');if(card){const group=card.closest('details');if(group)group.open=true;card.classList.add('open');card.scrollIntoView({block:'start'});}
 });
+function renderTermSnapshot(){
+ const root=document.getElementById('termSnapshotContent');root.replaceChildren();
+ document.getElementById('termSnapshotTitle').textContent=L('2026年度 '+({Spring:'春',Summer:'夏',Autumn:'秋',Winter:'冬'}[selectedQuarter]||selectedQuarter)+'学期の予定','AY2026 '+selectedQuarter+' plan');
+ const visible=myTimetable.filter(x=>effectiveQuarter(x)===null||effectiveQuarter(x)===selectedQuarter);
+ const grid=document.createElement('div');grid.className='snapshotGrid';root.append(grid);
+ const put=(text,col,row,cls,span=1)=>{const el=document.createElement('div');el.className=cls;el.textContent=text;el.style.gridColumn=col;el.style.gridRow=row+' / span '+span;grid.append(el);return el;};
+ DAYS.forEach((d,i)=>put(L(d,DAY_EN[d]),i+2,1,'snapshotDay'));
+ for(let p=1;p<=6;p++){put(String(p),1,p+1,'snapshotPeriod');DAYS.forEach((d,i)=>put('',i+2,p+1,'snapshotCell'));}
+ const extras=[];
+ for(const item of visible){
+  const periods=parseDayPeriod(item.day);let shown=false;
+  DAYS.forEach((day,i)=>{
+   const slots=[...new Set(periods.filter(p=>p.day===day&&+p.period>=1&&+p.period<=6).map(p=>+p.period))].sort((a,b)=>a-b);
+   while(slots.length){const start=slots.shift();let span=1;while(slots[0]===start+span){slots.shift();span++;}
+    const el=put(L(item.courseJp,item.courseEn),i+2,start+1,'snapshotCourse',span);if(item.room){const meta=document.createElement('small');meta.textContent=item.room;el.append(meta);}shown=true;
+   }
+  });
+  if(!shown||periods.some(p=>+p.period>6))extras.push(item);
+ }
+ if(!visible.length){const p=document.createElement('p');p.className='snapshotExtra';p.textContent=L('この学期の授業はまだ追加されていません。','No courses added for this quarter.');root.append(p);}
+ if(extras.length){const heading=document.createElement('strong');heading.textContent=L('集中講義・曜日未定など','Intensive / other courses');heading.className='snapshotExtra';root.append(heading);extras.forEach(x=>{const p=document.createElement('p');p.className='snapshotExtra';p.textContent=L(x.courseJp,x.courseEn)+(x.intensiveDates?.length?' · '+x.intensiveDates.join(', '):x.day?' · '+x.day:'');root.append(p);});}
+ const note=document.createElement('p');note.className='snapshotExtra';note.textContent=L('叡啓Navi · 履修予定（正式登録とは連動しません）\n学期未確定の集中講義も掲載。共有前に内容を確認してください。','Eikei Navi · planned courses, not official registration.\nIncludes intensive courses with an undetermined quarter. Check before sharing.');root.append(note);
+}
+document.getElementById('openTermSnapshot').addEventListener('click',()=>{renderTermSnapshot();document.getElementById('termSnapshotDialog').showModal();});
+document.getElementById('closeTermSnapshot').addEventListener('click',()=>document.getElementById('termSnapshotDialog').close());
 function renderTimetable(){
   if(!selectedQuarter) selectedQuarter = guessCurrentQuarter();
   document.querySelectorAll('#seasonTabs button').forEach(b => {
