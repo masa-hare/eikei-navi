@@ -232,7 +232,8 @@ function renderCourses(){
       </div>
     `;
     card.addEventListener('click', (e) => {
-      if(e.target.closest('button, a, details')) return; // 操作部品のクリックではカードを開閉しない
+      const interactive=e.target.closest('button, a, details, summary, input, select');
+      if(interactive&&card.contains(interactive)) return; // カード内部の操作部品だけは開閉に使わない
       card.classList.toggle('open');
     });
     card.querySelectorAll('a').forEach(link => {
