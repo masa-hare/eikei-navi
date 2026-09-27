@@ -6,7 +6,7 @@
 <meta name="description" content="叡啓大学の2026年度シラバス、時間割、集中講義、学年暦を検索・確認できる学生制作の非公式ビューアです。">
 <meta name="robots" content="noindex, nofollow, nosnippet">
 <meta name="application-name" content="叡啓Navi">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9xYrhayYd3jvw645x4Pz+x8a8m0poCg8WYFjLBRBJFg='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vtmbtSIJpT3fyw85+Efb/fjtA9WKK/+2ucSxwC6FMSk='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <link rel="canonical" href="https://masa-hare.github.io/eikei-navi/">
 <link rel="manifest" href="manifest.json">
@@ -291,6 +291,13 @@
   .ruleCompactTable td:first-child{font-weight:700;white-space:nowrap;}
   .teamCode{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--yellow-soft);color:#6C4A0E;border-radius:5px;padding:1px 5px;font-size:11.5px;user-select:all;}
   .supportedBadge{display:inline-block;background:#DDECE7;color:#245B4D;border-radius:100px;padding:1px 7px;font-size:10.5px;font-weight:700;margin-left:5px;vertical-align:1px;}
+  .copyTeamCode{position:relative;width:24px;height:24px;padding:0;margin-left:6px;color:var(--coral);background:transparent;border:0;border-radius:6px;cursor:pointer;vertical-align:-6px;}
+  .copyTeamCode::before,.copyTeamCode::after{content:"";position:absolute;width:9px;height:11px;border:1.5px solid currentColor;border-radius:2px;background:var(--paper);box-sizing:border-box;}
+  .copyTeamCode::before{left:6px;top:5px;}
+  .copyTeamCode::after{left:9px;top:8px;}
+  .copyTeamCode:hover{background:color-mix(in srgb,var(--coral) 9%,transparent);}
+  .copyTeamCode.isCopied::before{content:"✓";inset:0;width:auto;height:auto;border:0;background:transparent;font-size:15px;font-weight:800;line-height:24px;text-align:center;}
+  .copyTeamCode.isCopied::after{display:none;}
   .syllabusDetail{margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--paper);overflow:hidden;}
   .syllabusDetail summary{cursor:pointer;padding:7px 9px;font-size:12px;font-weight:700;color:var(--coral);list-style:none;}
   .syllabusDetail summary::-webkit-details-marker{display:none;}
@@ -6526,8 +6533,20 @@ function teamCodeHTML(code, block){
   const value = teamCodeFor(code);
   if(!value) return '';
   const tag = block ? 'div' : 'span';
-  return `<${tag} class="sMeta">${L('チームコード：','Team code: ')}<code class="teamCode">${escapeHTML(value)}</code></${tag}>`;
+  return `<${tag} class="sMeta">${L('チームコード：','Team code: ')}<code class="teamCode">${escapeHTML(value)}</code><button type="button" class="copyTeamCode" data-team-code="${escapeHTML(value)}" aria-label="${escapeHTML(L('チームコード '+value+' をコピー','Copy team code '+value))}"></button></${tag}>`;
 }
+async function copyTeamCode(value){
+  if(!/^[a-z0-9]{7}$/.test(value))return false;
+  try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(value);return true;}}catch{}
+  const input=document.createElement('textarea');input.value=value;input.readOnly=true;input.style.position='fixed';input.style.opacity='0';document.body.append(input);input.select();
+  let copied=false;try{copied=document.execCommand('copy');}catch{}input.remove();return copied;
+}
+document.addEventListener('click',async event=>{
+  const button=event.target.closest('.copyTeamCode');if(!button)return;
+  const ok=await copyTeamCode(button.dataset.teamCode||'');
+  button.classList.toggle('isCopied',ok);
+  button.setAttribute('aria-label',ok?L('コピーしました','Copied'):L('コピーできません','Copy failed'));setTimeout(()=>{if(button.isConnected){button.classList.remove('isCopied');button.setAttribute('aria-label',L('チームコード '+button.dataset.teamCode+' をコピー','Copy team code '+button.dataset.teamCode));}},1800);
+});
 // 公式時間割のコード末尾 J/E は、そのセクションの授業言語を表す。
 // 科目単位で決め打ちせず、同一科目の日本語・英語セクションを個別に表示する。
 function languageForCode(code){
