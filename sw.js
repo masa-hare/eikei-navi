@@ -1,10 +1,22 @@
-const CACHE_NAME = 'eikei-navi-v37';
+const CACHE_NAME = 'eikei-navi-v38';
 const APP_SHELL = [
   './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './icon-maskable-512.png'
+  './icon-maskable-512.png',
+  './js/loader.js',
+  './js/core.js',
+  './js/search.js',
+  './js/timetable.js',
+  './js/share.js',
+  './js/calendar.js',
+  './js/credits.js',
+  './js/app.js',
+  './data/courses.json',
+  './data/syllabi.json',
+  './data/calendar.json',
+  './data/graduation-requirements.json'
 ];
 
 self.addEventListener('install', event => {
