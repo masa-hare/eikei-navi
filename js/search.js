@@ -200,7 +200,7 @@ function renderCourses(){
             <div class="sectionInfo">
               <span class="sTeacher">${highlight(s.teacher,q)}</span>
               ${languageBadgeHTML(s.code, true)}
-              <span class="sMeta">${s.day ? escapeHTML(s.day)+' ・ '+escapeHTML(L(TERM_LABEL[s.term]||s.term, TERM_LABEL_EN[s.term]||s.term)) : escapeHTML(L(TERM_LABEL[s.term]||s.term, TERM_LABEL_EN[s.term]||s.term))} ・ ${escapeHTML(s.code)}${s.supported ? `<span class="supportedBadge">Supported</span>` : ''}${AUTUMN_0901_NOTES[s.code]?'<br>'+escapeHTML(L(...AUTUMN_0901_NOTES[s.code])):''}</span>
+              <span class="sMeta">${s.day ? escapeHTML(s.day)+' ・ '+escapeHTML(L(TERM_LABEL[s.term]||s.term, TERM_LABEL_EN[s.term]||s.term)) : escapeHTML(L(TERM_LABEL[s.term]||s.term, TERM_LABEL_EN[s.term]||s.term))} ・ ${escapeHTML(s.code)}${s.supported ? `<span class="supportedBadge">Supported</span>` : ''}${AUTUMN_NOTES[s.code]?'<br>'+escapeHTML(L(...AUTUMN_NOTES[s.code])):''}</span>
               ${teamCodeHTML(s.code, false)}
               ${(s.room || (s.dates && s.dates.length) || s.roomNote) ? `<span class="sMeta">${s.room ? L('教室：','Room: ')+escapeHTML(s.room) : ''}${s.dates && s.dates.length ? (s.room ? '（'+formatIntensiveDates(s.dates)+'）' : L('日程：','Dates: ')+formatIntensiveDates(s.dates)) : ''}${s.roomNote ? ((s.room || (s.dates && s.dates.length)) ? '／' : '')+escapeHTML(s.roomNote) : ''}</span>` : ''}
               ${renderSyllabusDetail(s.syllabus,s.syllabusSourceCode)}

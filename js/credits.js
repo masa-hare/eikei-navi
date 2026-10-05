@@ -1,4 +1,4 @@
-// Manual credit prototype. Memory only; independent from the persisted timetable.
+// Manual earned-credit input; local-only storage, separate from timetable plans.
 const creditTranslations = {
  ' / Finance（旧ファイナンス論・同一科目）':' / Finance (former name; count once)',
  '① 修得済みを入力 → ② 不足を確認して時間割へ追加':'1. Enter passed courses → 2. Check gaps and plan courses',
@@ -16,7 +16,7 @@ const creditTranslations = {
  '該当する科目がありません。検索や候補表示を解除してください。':'No courses match. Clear the search or timetable filter.',
  '選択した学期に該当する候補はありません。他の学期も確認してください。':'No suggestions for this quarter. Check another quarter.',
  '（2026年度以降は経済学に読替・同一科目として選択）':' (renamed Economics from AY2026; count once)',
- 'リベラルアーツ・入門選択':'Liberal Arts · Introductory electives','リベラルアーツ・入門必修':'Liberal Arts · Required introductory courses','リベラルアーツ・基盤':'Liberal Arts · Foundation',
+ 'リベラルアーツ・入門選択':'Liberal Arts · Introductory electives','入門選択':'Introductory electives','リベラルアーツ・入門必修':'Liberal Arts · Required introductory courses','リベラルアーツ・基盤':'Liberal Arts · Foundation',
  '入門必修（入門選択は別途確認）':'Required introductory courses',
  '海外プログラム（免除は個別確認）':'Overseas programs (check exemptions)',
  '入力した内容で不足・追加候補を見る':'Check gaps and course suggestions',
@@ -32,7 +32,7 @@ const creditTranslations = {
  '基本ツール選択の不足':'Tool elective gap','リベラルアーツ全体の不足':'Liberal Arts total gap','実践英語の不足':'Practical English gap','体験・実践の不足':'Experiential program gap',
  'リベラルアーツ合計':'Liberal Arts total','リベラルアーツ選択':'Liberal Arts electives','基本ツール合計':'Tools total','基本ツール必修':'Required tools','基本ツール選択':'Tool electives',
  '実践英語・基盤':'Practical English foundation','実践科目・必修':'Required capstone','入門必修':'Required introductory','基盤科目':'Foundation courses','体験・実践':'Experiential programs',
- '合格':'Pass','すべて選択済み':'All selected','選択済み':'Selected','未選択':'Not selected','日で修得':'Passed in JA','英で修得':'Passed in EN',
+ '合格':'Pass','すべて選択済み':'All selected','選択済み':'Selected','未選択':'Not selected','日で修得':'Passed in JA','英で修得':'Passed in EN','日本語':'Japanese','英語':'English','の修得状況':' · earned status',
  '分野別の不足':'Missing by field','あと最低':'At least ','の未修得科目':' not yet selected','の不足':' gap','英語開講':'English-taught','科目を見る':' more courses','科目':' courses','単位':' credits','修得':'Earned ','あと':'Remaining ','充足':'Met','基盤・':'Foundation · ','合計':'Total','年度入学':' entry','年度':' entry year','入学／':' entry /','ほか':'Show ',
  '人':'Humanities','社会':'Social Science','自然':'Natural Science','春':'Spring','夏':'Summer','秋':'Autumn','冬':'Winter','集中講義':'Intensive'
 };
@@ -82,9 +82,19 @@ function renderCreditResults(){
   line((creditEl('creditYear').value==='2024'?'2024年度以前':creditEl('creditYear').value+'年度')+'入学／'+(creditEl('creditComplete').checked?'入力完了としての参考集計':'入力途中：選択済み科目のみの集計')+' · '+selected.length+'科目');
   const makeCard=(container,name,n,required,missing=Math.max(0,required-n))=>{
     const card=document.createElement('div');card.className='creditResultCard';
-    const title=document.createElement('strong');title.textContent=name+'：'+n+' / '+required+'単位';
+    const title=document.createElement('strong');title.textContent=name;
+    const measure=document.createElement('div');measure.className='creditMeasure';
+    const current=document.createElement('b');current.textContent=n;
+    const requirement=document.createElement('span');requirement.textContent=L(' / '+required+'単位',' / '+required+' credits');
+    measure.append(current,requirement);
     const badge=document.createElement('span');badge.className='creditVerdict'+(missing===0?' pass':'');badge.textContent=missing===0?L('合格','Pass'):L('あと'+missing+'単位',missing+' credits needed');
-    card.append(title,badge);container.append(card);return card;
+    card.append(title,measure,badge);
+    const filterName=name;
+    if(creditCoursesForRequirement(filterName).length){
+      const courses=document.createElement('button');courses.type='button';courses.className='creditCourseLink';courses.textContent=L('対象科目・開講学期を見る','View courses and quarters');
+      courses.addEventListener('click',()=>{creditEl('creditCourseFilter').value=filterName;renderCreditCourseGuide();creditEl('creditCourseFilter').focus({preventScroll:true});creditEl('creditCourseGuide').scrollIntoView({block:'start'});});card.append(courses);
+    }
+    container.append(card);return card;
   };
   line(L('修得済みだけの判定（履修中・予定は含みません）','Earned-only results (excluding in-progress / planned courses)'));
   const totals=document.createElement('div');totals.className='creditResultGrid';root.append(totals);
@@ -94,7 +104,7 @@ function renderCreditResults(){
   let experienceCard;
   for(const [name,n,required] of checks.slice(2)){
     if(name.startsWith('海外プログラム')){
-      const child=makeCard(experienceCard||grid,L('うち海外（免除は個別確認）','Of which overseas (exemptions require confirmation)'),n,required);
+      const child=makeCard(experienceCard||grid,'海外プログラム（免除は個別確認）',n,required);child.querySelector('strong').textContent=L('うち海外（免除は個別確認）','Of which overseas (exemptions require confirmation)');
       child.style.background='#f3f0e7';
       const note=document.createElement('small');note.textContent=L('体験・実践4単位の内数です（4＋2ではありません）。','Included in the 4 experiential credits, not an additional 2.');child.append(note);
     }else{const card=makeCard(grid,name,n,required);if(name==='体験・実践')experienceCard=card;}
@@ -126,6 +136,76 @@ function plannedCreditState(){
  }
  return projected;
 }
+// Graduation categories use the curriculum table, not the syllabus search category labels.
+function creditCoursesForRequirement(name){
+ const tools=c=>['ICT・データサイエンス','思考系'].includes(c.category);
+ const liberal=c=>c.category.startsWith('リベラルアーツ');
+ const predicates={
+  '合計':()=>true,'英語開講':c=>findSections(c.en,c.jp).some(s=>s.language.code==='E'),
+  'IEP':c=>c.category==='IEP','実践英語・基盤':c=>c.category==='実践英語（基盤科目）',
+  '基本ツール合計':tools,'基本ツール必修':c=>creditToolRequired.includes(c.jp),'基本ツール選択':c=>tools(c)&&!creditToolRequired.includes(c.jp),
+  'リベラルアーツ合計':c=>liberal(c)||c.category==='実践科目','入門必修':c=>creditIntro.includes(c.jp),
+  '入門選択':c=>['数学入門','健康学入門'].includes(c.jp),'基盤科目':c=>creditFoundation.includes(c.jp),
+  'リベラルアーツ選択':c=>liberal(c)&&!creditIntro.includes(c.jp),
+  '体験・実践':c=>c.category==='体験・実践プログラム','海外プログラム（免除は個別確認）':c=>c.category==='体験・実践プログラム'&&c.jp.startsWith('海外'),
+  '課題解決演習':c=>c.category==='課題解決演習','卒業プロジェクト':c=>c.category==='卒業プロジェクト','実践科目・必修':c=>c.category==='実践科目'
+ };
+ for(const field of ['人','社会','自然'])predicates['基盤・'+field]=c=>creditFoundation.includes(c.jp)&&c.field===field;
+ for(const [key,labels] of Object.entries(WINDOW_LABELS))predicates[labels[0]]=c=>c.window===key;
+ return creditCatalog.filter(predicates[name]||(()=>false));
+}
+function creditSectionsInTerm(c,term){
+ return findSections(c.en,c.jp).filter(s=>s.term===term||(s.term==='1st Half'&&['Spring','Summer'].includes(term))||(s.term==='2nd Half'&&['Autumn','Winter'].includes(term)));
+}
+function openCreditCourse(c,term=''){
+ document.getElementById('weekdayFilter').value='';categoryFilter.value='';windowFilterEl.value='';termFilter.value=term;searchInput.value=c.jp;renderCourses();
+ // Half-year courses are not indexed by a quarter in the search filter.
+ if(!courseList.querySelector('.card')){termFilter.value='';renderCourses();}
+ document.querySelector('[data-tab="syllabus"]').click();
+ const card=[...document.querySelectorAll('#panel-syllabus .card')].find(e=>e.dataset.courseName===c.en);
+ if(card){card.closest('details')?.setAttribute('open','');card.classList.add('open');card.scrollIntoView({block:'start'});}
+}
+function renderCreditCourseGuide(){
+ const root=creditEl('creditCourseGuide'),select=creditEl('creditCourseFilter');if(!root||!select)return;
+ const previous=select.value||'基盤科目';
+ const names=[...creditSummary().checks.map(c=>c[0]),'入門選択',...Object.values(WINDOW_LABELS).map(w=>w[0])];
+ select.replaceChildren();for(const name of names){const option=document.createElement('option');option.value=name;option.textContent=L(name,creditTranslations[name]||CATEGORY_EN[name]||Object.values(WINDOW_LABELS).find(w=>w[0]===name)?.[1]||name);select.append(option);}select.value=names.includes(previous)?previous:'基盤科目';
+ root.replaceChildren();
+ const term=creditEl('creditTerm').value,next={Spring:'Summer',Summer:'Autumn',Autumn:'Winter',Winter:'Spring'}[term];
+ const courses=creditCoursesForRequirement(select.value),planned=plannedCreditState();
+ const available=courses.filter(c=>!planned.has(c.jp)),selected=courses.filter(c=>planned.has(c.jp));
+ const termLabel=t=>L({Spring:'春',Summer:'夏',Autumn:'秋',Winter:'冬',Intensive:'集中講義','1st Half':'前期（春・夏通期）','2nd Half':'後期（秋・冬通期）'}[t]||t,{'1st Half':'First half (Spring and Summer)','2nd Half':'Second half (Autumn and Winter)'}[t]||TERM_LABEL_EN[t]||t);
+ const intro=document.createElement('p');intro.className='creditGuideNote';intro.textContent=L('この区分の対象は'+courses.length+'科目。2026年度の開講情報です。科目名からシラバスを確認できます。','This requirement includes '+courses.length+' courses. Offerings are from AY2026. Select a course name to view its syllabus.');root.append(intro);
+ if(select.value.startsWith('基盤')){const note=document.createElement('p');note.className='creditGuideNote';note.textContent=L('基盤科目は人・社会・自然の3分野。数学入門・健康学入門は「入門選択」で、基盤科目には含みません。','Foundation courses span Humanities, Society and Nature. Introduction to Mathematics and Health Science are introductory electives, not foundation courses.');root.append(note);}
+ const list=(host,items,quarter)=>{
+   const ul=document.createElement('ul');ul.className='creditOfferingList';host.append(ul);
+   for(const [index,c] of items.entries()){
+     const li=document.createElement('li');li.dataset.course=c.jp;li.hidden=index>=5;
+     const sections=quarter?creditSectionsInTerm(c,quarter):findSections(c.en,c.jp);
+     const title=document.createElement('button');title.type='button';title.className='creditOfferingTitle';title.textContent=L(c.jp,c.en);title.addEventListener('click',()=>openCreditCourse(c,sections[0]?.term||''));li.append(title);
+     const meta=document.createElement('span');meta.className='creditOfferingMeta';meta.textContent=c.units+' '+L('単位','credits')+(c.field?' · '+L(c.field,creditTranslations[c.field]):'');li.append(meta);
+     const offerings=[...new Set(sections.map(s=>termLabel(s.term)+' · '+L(s.language.ja,s.language.en)+(s.day?' · '+(LANG==='ja'?s.day:s.day.replace(/[月火水木金土日]/g,d=>({月:'Mon ',火:'Tue ',水:'Wed ',木:'Thu ',金:'Fri ',土:'Sat ',日:'Sun '}[d]))):'')))];
+     const schedule=document.createElement('span');schedule.className='creditOfferingMeta';schedule.textContent=offerings.join(' / ')||L('開講情報未収録','Offering information not available');li.append(schedule);
+     if(quarter&&sections.some(s=>(quarter==='Summer'&&s.term==='1st Half')||(quarter==='Winter'&&s.term==='2nd Half'))){const note=document.createElement('span');note.className='creditOfferingMeta';note.textContent=L('通期科目の継続開講：途中からの新規登録は要確認','Continuing half-year course: check whether mid-course registration is allowed');li.append(note);}
+     if(planned.has(c.jp)){const status=document.createElement('span');status.className='creditOfferingState';status.textContent=creditState.has(c.jp)?L('修得済み','Earned'):L('時間割に追加済み・履修中／予定','In My Timetable · in progress / planned');li.append(status);}
+     ul.append(li);
+   }
+   if(items.length>5){const more=document.createElement('button');more.type='button';more.className='creditCourseLink';more.textContent=L('ほか'+(items.length-5)+'科目を表示','Show '+(items.length-5)+' more courses');more.addEventListener('click',()=>{ul.querySelectorAll('li').forEach(li=>li.hidden=false);more.remove();});host.append(more);}
+ };
+ const grid=document.createElement('div');grid.className='creditOfferingGrid';root.append(grid);
+ const panels=[[term,L('選んだ学期：','Selected quarter: ')+termLabel(term)]];
+ if(next)panels.push([next,L('次の学期：','Next quarter: ')+termLabel(next)+(term==='Winter'?L('（2027年度・未収録）',' (AY2027 · not available)'):'')]);
+ for(const [quarter,label] of panels){
+   const panel=document.createElement('section');panel.className='creditOfferingPanel';panel.dataset.term=quarter;const title=document.createElement('h4');title.textContent=label;panel.append(title);grid.append(panel);
+   const items=term==='Winter'&&quarter===next?[]:available.filter(c=>creditSectionsInTerm(c,quarter).length);
+   if(items.length)list(panel,items,quarter);else{const empty=document.createElement('p');empty.className='creditGuideNote';empty.textContent=term==='Winter'&&quarter===next?L('来年度の開講予定は未収録です。2026年度の春の情報からは判断しません。','Next academic year is not included. AY2026 Spring data is not used to predict AY2027.'):L('未修得・未追加の対象科目は、この学期の開講情報にありません。','No unearned, unplanned courses for this requirement appear in this quarter’s data.');panel.append(empty);}
+ }
+ for(const [label,items] of [[L('ほかの学期・集中講義・開講情報未収録','Other quarters, intensive courses and unavailable offerings'),available.filter(c=>!creditSectionsInTerm(c,term).length&&(!next||term==='Winter'||!creditSectionsInTerm(c,next).length))],[L('修得済み・時間割に追加済み','Earned or already in My Timetable'),selected]]){
+   if(!items.length)continue;const details=document.createElement('details');details.className='creditGuideMore';const summary=document.createElement('summary');summary.textContent=label+' ('+items.length+')';details.append(summary);list(details,items);root.append(details);
+ }
+ const caution=document.createElement('p');caution.className='creditGuideNote';caution.textContent=L('開講していても履修条件・抽選・日時の重複は別途確認が必要です。集中講義の日程はシラバスで確認してください。','Offerings do not guarantee eligibility or seats. Check prerequisites, lottery rules, timetable conflicts and intensive-course dates in the syllabus.');root.append(caution);
+ translateCreditUI();
+}
 function renderPersonalCreditOverview(){
  let root=creditEl('personalCreditOverview');
  if(!root){root=document.createElement('div');root.id='personalCreditOverview';creditEl('creditResults').prepend(root);}
@@ -151,6 +231,7 @@ function renderPersonalCreditOverview(){
  }
 }
 function renderCreditSuggestions(){
+  renderCreditCourseGuide();
   if(creditEl('personalCreditOverview'))renderPersonalCreditOverview();
   const root=creditEl('creditSuggestions');root.replaceChildren();
   const projected=new Map(creditState);
@@ -168,7 +249,7 @@ function renderCreditSuggestions(){
   const suggestions=[];
   for(const c of creditCatalog){
     if(projected.has(c.jp))continue;
-    const sections=findSections(c.en,c.jp).filter(s=>s.term===creditEl('creditTerm').value);
+    const sections=creditSectionsInTerm(c,creditEl('creditTerm').value);
     if(!sections.length)continue;
     const reasons=[];
     if(creditIntro.includes(c.jp))reasons.push('入門必修');
@@ -201,7 +282,7 @@ function renderCreditSuggestions(){
   let suggestionIndex=0;
   for(const {c,reasons} of suggestions){
     const row=document.createElement('div');row.className='creditRow';if(suggestionIndex++>=5)row.style.display='none';const label=document.createElement('span');label.textContent=c.jp+'（'+c.units+'単位）';const note=document.createElement('small');note.textContent=reasons.join('／');label.append(note);
-    const button=document.createElement('button');button.className='pillBtn';button.textContent='授業を見て時間割へ';button.addEventListener('click',()=>{document.getElementById('weekdayFilter').value='';categoryFilter.value='';windowFilterEl.value='';termFilter.value=creditEl('creditTerm').value;searchInput.value=c.jp;renderCourses();document.querySelector('[data-tab="syllabus"]').click();const card=courseList.querySelector('.card');if(card){card.classList.add('open');card.scrollIntoView({block:'start'});}});row.append(label,button);root.append(row);
+    const button=document.createElement('button');button.className='pillBtn';button.textContent='授業を見て時間割へ';button.addEventListener('click',()=>openCreditCourse(c,creditSectionsInTerm(c,creditEl('creditTerm').value)[0]?.term||''));row.append(label,button);root.append(row);
   }
   if(suggestions.length>5){const more=document.createElement('button');more.className='pillBtn';more.textContent='ほか'+(suggestions.length-5)+'科目を見る';more.addEventListener('click',()=>{root.querySelectorAll('.creditRow').forEach(r=>r.style.display='');more.remove();});root.append(more);}
   translateCreditUI();
@@ -219,7 +300,7 @@ function renderCreditList(){
   if(elective>=0&&required>=0){groups.splice(elective,1);groups.splice(groups.indexOf('リベラルアーツ・入門必修')+1,0,'リベラルアーツ・入門選択');}
   for(const group of groups){
     const ds=document.createElement('details');ds.dataset.group=group;ds.open=!!q||creditCandidates||creditEl('creditSelectedOnly').checked||open.has(group);
-    const title=document.createElement('summary');title.textContent=group;ds.append(title);
+    const title=document.createElement('summary');const heading=document.createElement('span');heading.className='creditGroupTitle';heading.textContent=group;title.append(heading);ds.append(title);
     const status=document.createElement('span');status.className='creditGroupStatus';title.append(status);
     const updateGroup=()=>{const all=creditCatalog.filter(c=>c.group===group);const chosen=all.filter(c=>creditState.has(c.jp));const complete=chosen.length===all.length;ds.classList.toggle('creditCompleteGroup',complete);status.textContent=(complete?'すべて選択済み':'選択済み '+chosen.length+' / '+all.length+'科目')+' · '+chosen.reduce((n,c)=>n+c.units,0)+'単位';};
     updateGroup();
@@ -244,13 +325,18 @@ function renderCreditList(){
       b.addEventListener('click',()=>{for(const c of creditCatalog.filter(c=>c.category==='IEP'))creditState.set(c.jp,'en');creditEl('creditComplete').checked=false;renderCreditList();renderCreditResults();});ds.append(b);
     }
     for(const c of members){
-      const row=document.createElement('label');row.className='creditRow';const name=document.createElement('span');
+      const row=document.createElement('div');row.className='creditRow';const name=document.createElement('span');name.className='creditCourseName';
       name.textContent=c.jp+(c.jp==='経済学'?' / Finance（旧ファイナンス論・同一科目）':'');
       const sub=document.createElement('small');sub.textContent=c.en+' · '+c.units+'単位'+(c.field?' · '+c.field:'');name.append(sub);
-      const select=document.createElement('select');select.setAttribute('aria-label',c.jp+'の修得状況');
-      for(const [v,t] of [['','未選択'],...(!c.englishOnly?[['ja','日で修得']]:[]),...(!c.japaneseOnly?[['en','英で修得']]:[])]){const opt=document.createElement('option');opt.value=v;opt.textContent=t;select.append(opt);}
-      select.value=creditState.get(c.jp)||'';row.classList.toggle('creditChosen',creditState.has(c.jp));select.addEventListener('change',()=>{if(select.value)creditState.set(c.jp,select.value);else creditState.delete(c.jp);row.classList.toggle('creditChosen',creditState.has(c.jp));updateGroup();creditEl('creditComplete').checked=false;renderCreditResults();if(creditEl('creditSelectedOnly').checked)renderCreditList();});
-      row.append(name,select);ds.append(row);
+      const choices=document.createElement('fieldset');choices.className='creditLanguageChoices';
+      const legend=document.createElement('legend');legend.className='srOnly';legend.textContent=c.jp+'の修得状況';choices.append(legend);
+      const current=creditState.get(c.jp)||'';
+      for(const [value,text] of [['','未選択'],...(!c.englishOnly?[['ja','日本語']]:[]),...(!c.japaneseOnly?[['en','英語']]:[])]){
+        const option=document.createElement('label');const radio=document.createElement('input');radio.type='radio';radio.name='earned-language-'+creditCatalog.indexOf(c);radio.value=value;radio.checked=current===value;
+        const caption=document.createElement('span');caption.textContent=text;option.append(radio,caption);choices.append(option);
+        radio.addEventListener('change',()=>{if(!radio.checked)return;if(value)creditState.set(c.jp,value);else creditState.delete(c.jp);row.classList.toggle('creditChosen',creditState.has(c.jp));updateGroup();creditEl('creditComplete').checked=false;renderCreditResults();if(creditEl('creditSelectedOnly').checked)renderCreditList();});
+      }
+      row.classList.toggle('creditChosen',creditState.has(c.jp));row.append(name,choices);ds.append(row);
     }root.append(ds);
   }
   translateCreditUI();
@@ -258,8 +344,8 @@ function renderCreditList(){
 for(const id of ['creditSearch','creditSelectedOnly'])creditEl(id).addEventListener('input',renderCreditList);
 for(const id of ['creditYear','creditEntry'])creditEl(id).addEventListener('change',()=>{creditEl('creditComplete').checked=false;renderCreditList();renderCreditResults();});
 creditEl('creditComplete').addEventListener('change',renderCreditResults);
-document.getElementById('langToggle').addEventListener('click',()=>{renderCreditList();renderCreditResults();translateCreditUI();});
 for(const id of ['creditTerm','creditWindow'])creditEl(id).addEventListener('change',renderCreditSuggestions);
+creditEl('creditCourseFilter').addEventListener('change',renderCreditCourseGuide);
 function showCreditStep(output){
   creditEl('creditOutputStep').hidden=!output;
   creditEl('creditEntryStep').hidden=output;

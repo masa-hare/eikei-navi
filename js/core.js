@@ -26,6 +26,14 @@ function applyStaticLang(){
       el.placeholder = el.dataset.jaPlaceholder;
     }
   });
+  document.querySelectorAll('[data-en-aria-label]').forEach(el => {
+    if(LANG === 'en'){
+      if(el.dataset.jaAriaLabel === undefined) el.dataset.jaAriaLabel = el.getAttribute('aria-label') || '';
+      el.setAttribute('aria-label',el.dataset.enAriaLabel);
+    } else if(el.dataset.jaAriaLabel !== undefined){
+      el.setAttribute('aria-label',el.dataset.jaAriaLabel);
+    }
+  });
   const btn = document.getElementById('langToggle');
   if(btn) btn.textContent = LANG === 'ja' ? 'English' : '日本語';
 }
@@ -53,8 +61,9 @@ const APP_DATA = globalThis.EIKEI_DATA;
 const COURSES = APP_DATA.courses.courses;
 const FACULTY_URL = APP_DATA.courses.facultyUrl;
 const SECTIONS = APP_DATA.courses.sections;
-const AUTUMN_0901_ROOMS = APP_DATA.courses.autumnRooms;
-const AUTUMN_0901_NOTES = APP_DATA.courses.autumnNotes;
+const AUTUMN_ROOMS = APP_DATA.courses.autumnRooms;
+const PREVIOUS_AUTUMN_ROOMS = APP_DATA.courses.previousAutumnRooms || {};
+const AUTUMN_NOTES = APP_DATA.courses.autumnNotes;
 const SUPPORTED_CODES = new Set(APP_DATA.courses.supportedCodes);
 const TEAM_CODE_DATA = Object.freeze(APP_DATA.courses.teamCodes);
 const SYLLABUS_DETAILS = APP_DATA.syllabi.details;
@@ -122,6 +131,13 @@ function languageBadgeHTML(code, offeredLabel){
   const shortLabel = language.code === 'J' ? L('日','JA') : language.code === 'E' ? L('英','EN') : '?';
   const accessibleLabel = L(fullJa,fullEn);
   return `<span class="languageBadge ${language.className}" title="${escapeHTML(accessibleLabel)}" aria-label="${escapeHTML(accessibleLabel)}">${shortLabel}</span>`;
+}
+// マイ時間割では画面の表示言語ではなく、選択したセクションの開講言語で科目名を表示する。
+function courseNameForTeachingLanguage(item){
+  const language = languageForCode(item && item.code).code;
+  if(language === 'E') return item.courseEn || item.courseJp || '';
+  if(language === 'J') return item.courseJp || item.courseEn || '';
+  return L(item.courseJp || item.courseEn || '', item.courseEn || item.courseJp || '');
 }
 const SECTIONS_BY_NORM = {};
 SECTIONS.forEach(([code, name, teacher, day, term, room]) => {

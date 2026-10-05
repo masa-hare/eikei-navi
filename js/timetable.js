@@ -12,13 +12,19 @@ function sanitizeTimetableItem(value){
   const day = cleanStoredText(value.day, 80);
   const term = cleanStoredText(value.term, 40);
   const code = cleanStoredText(value.code, 80);
-  const room = cleanStoredText(value.room, 300) || AUTUMN_0901_ROOMS[code] || '';
+  const savedRoom = cleanStoredText(value.room, 300);
+  const roomCustomized = value.roomCustomized === true;
+  const officialRoom = ['Autumn','2nd Half'].includes(term) ? AUTUMN_ROOMS[code] : '';
+  // 更新前の自動入力値だけを移行し、利用者が編集した教室メモは維持する。
+  const previousRooms = PREVIOUS_AUTUMN_ROOMS[code] || [];
+  const room = officialRoom && !roomCustomized && (!savedRoom || previousRooms.includes(savedRoom))
+    ? officialRoom : savedRoom;
   const intensiveDates = Array.isArray(value.intensiveDates)
     ? value.intensiveDates.filter(d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0, 40)
     : [];
   return {
     key: sectionKey(code, courseEn, teacher, day),
-    courseJp, courseEn, teacher, day, term, code, room, intensiveDates
+    courseJp, courseEn, teacher, day, term, code, room, roomCustomized, intensiveDates
   };
 }
 // 保存はこの端末のブラウザ内（localStorage）だけ。サーバーへ送信する処理は設けていない。
@@ -141,7 +147,8 @@ document.querySelectorAll('#ttDayTabs button').forEach(b => {
 });
 
 function timetableSyllabusLink(item){
- return `<button type="button" class="ttSyllabusLink" data-syllabus-course="${escapeHTML(item.courseJp)}" style="font:inherit;color:inherit;text-align:left;background:transparent;border:0;padding:4px 0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;" aria-label="${escapeHTML(L(item.courseJp+'のシラバスを開く','Open syllabus: '+item.courseEn))}">${escapeHTML(L(item.courseJp,item.courseEn))}</button>`;
+ const name=courseNameForTeachingLanguage(item);
+ return `<button type="button" class="ttSyllabusLink" data-syllabus-course="${escapeHTML(name)}" style="font:inherit;color:inherit;text-align:left;background:transparent;border:0;padding:4px 0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;" aria-label="${escapeHTML(L(name+'のシラバスを開く','Open syllabus: '+name))}">${escapeHTML(name)}</button>`;
 }
 document.addEventListener('click',event=>{
  const button=event.target.closest('[data-syllabus-course]');if(!button)return;
@@ -198,9 +205,8 @@ function renderTimetable(){
       html += '<td class="ttCalCell">' + here.map(item => `
         <div class="ttCalCourse">
           <div class="ttCalName">${timetableSyllabusLink(item)}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
-          ${languageBadgeHTML(item.code, false)}
           ${teamCodeHTML(item.code, true)}
-          <input type="text" class="roomInput" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+L(item.courseJp,item.courseEn))}">
+          <input type="text" class="roomInput" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+courseNameForTeachingLanguage(item))}">
         </div>`).join('') + '</td>';
     });
     html += '</tr>';
@@ -216,7 +222,7 @@ function renderTimetable(){
   ttGrid.querySelectorAll('.roomInput').forEach(el => {
     el.addEventListener('input', () => {
       const it = myTimetable.find(x => x.key === el.dataset.key);
-      if(it){ it.room = el.value; saveTimetable(); renderToday(); }
+      if(it){ it.room = el.value; it.roomCustomized = true; saveTimetable(); renderToday(); }
     });
   });
 
@@ -231,9 +237,8 @@ function renderTimetable(){
       <div class="period">${period}</div>
       <div class="info">
         <div class="cname">${timetableSyllabusLink(item)}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
-        ${languageBadgeHTML(item.code, true)}
         ${teamCodeHTML(item.code, true)}
-        <input type="text" class="roomInput" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+L(item.courseJp,item.courseEn))}">
+        <input type="text" class="roomInput" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+courseNameForTeachingLanguage(item))}">
       </div>
     </div>`).join('') : `<p class="empty">${L('この曜日に登録されている授業はありません。','No courses on this day.')}</p>`;
   ttDayList.querySelectorAll('.rm').forEach(el => {
@@ -245,13 +250,13 @@ function renderTimetable(){
   ttDayList.querySelectorAll('.roomInput').forEach(el => {
     el.addEventListener('input', () => {
       const it = myTimetable.find(x => x.key === el.dataset.key);
-      if(it){ it.room = el.value; saveTimetable(); renderToday(); }
+      if(it){ it.room = el.value; it.roomCustomized = true; saveTimetable(); renderToday(); }
     });
   });
 
   ttOther.innerHTML = other.length
     ? `<p style="font-size:13px;color:var(--ink-soft);margin:0 0 8px;">${L('曜日・時限が決まっていない科目（通年など）','Courses without a fixed day/period (full-year, etc.)')}</p>` +
-      other.map(x => `<div class="ttOtherItem"><span>${timetableSyllabusLink(x)}（${escapeHTML(x.teacher)} / ${escapeHTML(L(TERM_LABEL[x.term]||x.term, TERM_LABEL_EN[x.term]||x.term))}）<br>${languageBadgeHTML(x.code, true)}${x.room ? '<br><span style="color:var(--ink-soft);font-size:12px;">'+L('教室：','Room: ')+escapeHTML(x.room)+'</span>' : ''}${hasTeamCode(x.code) ? '<br>'+teamCodeHTML(x.code, false) : ''}</span><button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>`).join('')
+      other.map(x => `<div class="ttOtherItem"><span>${timetableSyllabusLink(x)}（${escapeHTML(x.teacher)} / ${escapeHTML(L(TERM_LABEL[x.term]||x.term, TERM_LABEL_EN[x.term]||x.term))}）${x.room ? '<br><span style="color:var(--ink-soft);font-size:12px;">'+L('教室：','Room: ')+escapeHTML(x.room)+'</span>' : ''}${hasTeamCode(x.code) ? '<br>'+teamCodeHTML(x.code, false) : ''}</span><button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>`).join('')
     : '';
   ttOther.querySelectorAll('.rm').forEach(el => {
     el.addEventListener('click', () => {
@@ -268,8 +273,8 @@ function renderTimetable(){
       withDates.map(x => `<div class="intItem">
         <div class="intDate">${formatIntensiveDates(x.intensiveDates)}</div>
         <div class="intBody">
-          <div class="name">${timetableSyllabusLink(x)}<span class="en">${escapeHTML(L(x.courseEn,x.courseJp))}</span></div>
-          <div class="meta">${languageBadgeHTML(x.code, true)} ${escapeHTML(x.teacher)}${x.room ? ' ・ '+escapeHTML(x.room) : ''}<button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
+          <div class="name">${timetableSyllabusLink(x)}</div>
+          <div class="meta">${escapeHTML(x.teacher)}${x.room ? ' ・ '+escapeHTML(x.room) : ''}<button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
         </div>
       </div>`).join('')
     : '';
@@ -331,7 +336,7 @@ function renderToday(){
       <div class="todayTime">${time}</div>
       <div>
         <div class="todayCourse">${timetableSyllabusLink(item)}</div>
-        <div class="todayMeta">${languageBadgeHTML(item.code, false)} ${escapeHTML(item.teacher)}${item.room ? ' ・ ' + escapeHTML(item.room) : ' ・ '+L('教室未入力','room not entered')}</div>
+        <div class="todayMeta">${escapeHTML(item.teacher)}${item.room ? ' ・ ' + escapeHTML(item.room) : ' ・ '+L('教室未入力','room not entered')}</div>
       </div>
     </div>`;
   }).join('');
@@ -339,7 +344,7 @@ function renderToday(){
       <div class="todayTime">${L('集中講義','Intensive')}</div>
       <div>
         <div class="todayCourse">${timetableSyllabusLink(item)}</div>
-        <div class="todayMeta">${languageBadgeHTML(item.code, false)} ${escapeHTML(item.teacher)}${item.room ? ' ・ ' + escapeHTML(item.room) : ' ・ '+L('教室未入力','room not entered')}</div>
+        <div class="todayMeta">${escapeHTML(item.teacher)}${item.room ? ' ・ ' + escapeHTML(item.room) : ' ・ '+L('教室未入力','room not entered')}</div>
       </div>
     </div>`).join('');
   el.innerHTML = `<div class="todayCard"><p class="todayTitle">${title}</p>${rows}</div>`;

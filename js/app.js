@@ -13,10 +13,17 @@ document.getElementById('registrationCohort')?.addEventListener('change', render
 // ---- tabs ----
 document.querySelectorAll('nav.tabs button').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('nav.tabs button').forEach(b => {
+      b.classList.remove('active');
+      b.removeAttribute('aria-current');
+    });
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    btn.setAttribute('aria-current','page');
+    const panel=document.getElementById('panel-' + btn.dataset.tab);
+    panel.classList.add('active');
+    panel.tabIndex=-1;
+    panel.focus({preventScroll:true});
   });
 });
 
@@ -30,6 +37,9 @@ document.getElementById('langToggle').addEventListener('click', () => {
   renderTimetable();
   renderCalendar();
   renderRegistrationSchedule();
+  renderCreditList();
+  renderCreditResults();
+  translateCreditUI();
 });
 
 // ---- PWA：オフライン対応・ホーム画面追加用のService Worker登録 ----

@@ -12,13 +12,13 @@ function renderTermSnapshot(){
   DAYS.forEach((day,i)=>{
    const slots=[...new Set(periods.filter(p=>p.day===day&&+p.period>=1&&+p.period<=6).map(p=>+p.period))].sort((a,b)=>a-b);
    while(slots.length){const start=slots.shift();let span=1;while(slots[0]===start+span){slots.shift();span++;}
-    const el=put(L(item.courseJp,item.courseEn),i+2,start+1,'snapshotCourse',span);if(item.room){const meta=document.createElement('small');meta.textContent=item.room;el.append(meta);}shown=true;
+    const el=put(courseNameForTeachingLanguage(item),i+2,start+1,'snapshotCourse',span);if(item.room){const meta=document.createElement('small');meta.textContent=item.room;el.append(meta);}shown=true;
    }
   });
   if(!shown||periods.some(p=>+p.period>6))extras.push(item);
  }
  if(!visible.length){const p=document.createElement('p');p.className='snapshotExtra';p.textContent=L('この学期の授業はまだ追加されていません。','No courses added for this quarter.');root.append(p);}
- if(extras.length){const heading=document.createElement('strong');heading.textContent=L('集中講義・曜日未定など','Intensive / other courses');heading.className='snapshotExtra';root.append(heading);extras.forEach(x=>{const p=document.createElement('p');p.className='snapshotExtra';p.textContent=L(x.courseJp,x.courseEn)+(x.intensiveDates?.length?' · '+x.intensiveDates.join(', '):x.day?' · '+x.day:'');root.append(p);});}
+ if(extras.length){const heading=document.createElement('strong');heading.textContent=L('集中講義・曜日未定など','Intensive / other courses');heading.className='snapshotExtra';root.append(heading);extras.forEach(x=>{const p=document.createElement('p');p.className='snapshotExtra';p.textContent=courseNameForTeachingLanguage(x)+(x.intensiveDates?.length?' · '+x.intensiveDates.join(', '):x.day?' · '+x.day:'');root.append(p);});}
  const note=document.createElement('p');note.className='snapshotExtra';note.textContent=L('叡啓Navi · 履修予定（正式登録とは連動しません）\n学期未確定の集中講義も掲載。共有前に内容を確認してください。','Eikei Navi · planned courses, not official registration.\nIncludes intensive courses with an undetermined quarter. Check before sharing.');root.append(note);
 }
 document.getElementById('openTermSnapshot').addEventListener('click',()=>{renderTermSnapshot();document.getElementById('termSnapshotDialog').showModal();});
@@ -46,13 +46,13 @@ function createTermShareCanvas(){
    const signature=JSON.stringify(here.map(item=>item.code||item.key||item.courseJp));let span=1;
    while(p+span<=6&&JSON.stringify(visible.filter(item=>parseDayPeriod(item.day).some(slot=>slot.day===day&&+slot.period===p+span)).map(item=>item.code||item.key||item.courseJp))===signature)span++;
    if(here.length){const y=top+(p-1)*rowHeight;ctx.fillStyle='#f9d9c7';ctx.fillRect(x+3,y,width-6,span*rowHeight-6);
-    let offset=y+34;for(const item of here)offset+=write(L(item.courseJp,item.courseEn),x+15,offset,width-30,24,true)+10;
+    let offset=y+34;for(const item of here)offset+=write(courseNameForTeachingLanguage(item),x+15,offset,width-30,24,true)+10;
    }p+=span;
   }
  });
  for(let p=1;p<=6;p++)write(String(p),25,top+(p-1)*rowHeight+35,35,25,true);
  let y=1135;
- if(extras.length){write(L('集中講義・曜日未定など（学期未確定を含む）','Intensive / other (including undetermined quarters)'),40,y,1000,23,true);y+=45;for(const item of extras){y+=write(L(item.courseJp,item.courseEn),40,y,1000,24)+20;}}
+ if(extras.length){write(L('集中講義・曜日未定など（学期未確定を含む）','Intensive / other (including undetermined quarters)'),40,y,1000,23,true);y+=45;for(const item of extras){y+=write(courseNameForTeachingLanguage(item),40,y,1000,24)+20;}}
  write(L('共有用 · 教室・Teamsコード・個人メモなし','For sharing · no rooms, Teams codes or personal notes'),40,y+30,1000,21);
  return canvas;
 }
