@@ -33,8 +33,10 @@ function loadTimetable(){
   try{
     const raw = localStorage.getItem(TIMETABLE_STORAGE_KEY);
     if(raw){
+      if(raw.length > 250000) throw new Error('Timetable data is too large');
       const parsed = JSON.parse(raw);
       if(!Array.isArray(parsed)) throw new Error('Invalid timetable data');
+      if(parsed.length > 150) throw new Error('Timetable data is too large');
       myTimetable = parsed.map(sanitizeTimetableItem).filter(Boolean);
       // 旧版の「科目名＋教員＋曜日」キーを、時間割コード優先のキーへ保存し直す。
       saveTimetable();
@@ -206,7 +208,7 @@ function renderTimetable(){
         <div class="ttCalCourse">
           <div class="ttCalName">${timetableSyllabusLink(item)}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
           ${teamCodeHTML(item.code, true)}
-          <input type="text" class="roomInput" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+courseNameForTeachingLanguage(item))}">
+          <input type="text" class="roomInput" maxlength="300" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+courseNameForTeachingLanguage(item))}">
         </div>`).join('') + '</td>';
     });
     html += '</tr>';
@@ -222,7 +224,7 @@ function renderTimetable(){
   ttGrid.querySelectorAll('.roomInput').forEach(el => {
     el.addEventListener('input', () => {
       const it = myTimetable.find(x => x.key === el.dataset.key);
-      if(it){ it.room = el.value; it.roomCustomized = true; saveTimetable(); renderToday(); }
+      if(it){ it.room = cleanStoredText(el.value, 300); it.roomCustomized = true; saveTimetable(); renderToday(); }
     });
   });
 
@@ -238,7 +240,7 @@ function renderTimetable(){
       <div class="info">
         <div class="cname">${timetableSyllabusLink(item)}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
         ${teamCodeHTML(item.code, true)}
-        <input type="text" class="roomInput" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+courseNameForTeachingLanguage(item))}">
+        <input type="text" class="roomInput" maxlength="300" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+courseNameForTeachingLanguage(item))}">
       </div>
     </div>`).join('') : `<p class="empty">${L('この曜日に登録されている授業はありません。','No courses on this day.')}</p>`;
   ttDayList.querySelectorAll('.rm').forEach(el => {
@@ -250,7 +252,7 @@ function renderTimetable(){
   ttDayList.querySelectorAll('.roomInput').forEach(el => {
     el.addEventListener('input', () => {
       const it = myTimetable.find(x => x.key === el.dataset.key);
-      if(it){ it.room = el.value; it.roomCustomized = true; saveTimetable(); renderToday(); }
+      if(it){ it.room = cleanStoredText(el.value, 300); it.roomCustomized = true; saveTimetable(); renderToday(); }
     });
   });
 

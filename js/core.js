@@ -3,7 +3,7 @@ let LANG = 'ja';
 function L(ja, en){ return LANG === 'ja' ? ja : en; }
 // 保存は常にこの端末のブラウザ内（localStorage）だけで完結させる。サーバーへの送信処理は一切ない。
 function loadLang(){
-  try{ const v = localStorage.getItem('tenohira-lang'); if(v) LANG = v; }catch(e){ /* 保存先が使えない環境では既定言語のまま */ }
+  try{ const v = localStorage.getItem('tenohira-lang'); if(v === 'ja' || v === 'en') LANG = v; }catch(e){ /* 保存先が使えない環境では既定言語のまま */ }
 }
 function saveLang(){
   try{ localStorage.setItem('tenohira-lang', LANG); }catch(e){ /* 保存できなくても表示は続行 */ }

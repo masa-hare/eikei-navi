@@ -79,9 +79,9 @@ function renderCalendar(){
       const item = document.createElement('div');
       item.className = 'cal-item' + (i === nextIdx ? ' next' : '');
       item.innerHTML = `
-        <div class="cal-date">${dateLabel}</div>
+        <div class="cal-date">${escapeHTML(dateLabel)}</div>
         <div class="cal-body">
-          <div class="cal-event-title">${L(label, CAL_LABEL_EN[label] || label)}</div>
+          <div class="cal-event-title">${escapeHTML(L(label, CAL_LABEL_EN[label] || label))}</div>
           <div class="cal-meta"><span class="cal-type ${typeClass}">${L(typeLabelJa, CAL_TYPE_EN[typeLabelJa])}</span>${i===nextIdx ? `<span class="next-flag">${L('次のイベント','Next up')}</span>` : ''}</div>
         </div>
       `;
