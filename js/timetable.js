@@ -207,7 +207,7 @@ function renderTimetable(){
       html += '<td class="ttCalCell">' + here.map(item => `
         <div class="ttCalCourse">
           <div class="ttCalName">${timetableSyllabusLink(item)}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
-          ${teamCodeHTML(item.code, true)}
+          ${classCodesHTML(item.code, true)}
           <input type="text" class="roomInput" maxlength="300" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+courseNameForTeachingLanguage(item))}">
         </div>`).join('') + '</td>';
     });
@@ -239,7 +239,7 @@ function renderTimetable(){
       <div class="period">${period}</div>
       <div class="info">
         <div class="cname">${timetableSyllabusLink(item)}<button type="button" class="rm" data-key="${escapeHTML(item.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
-        ${teamCodeHTML(item.code, true)}
+        ${classCodesHTML(item.code, true)}
         <input type="text" class="roomInput" maxlength="300" data-key="${escapeHTML(item.key)}" value="${escapeHTML(item.room||'')}" placeholder="${L('教室','Room')}" aria-label="${escapeHTML(L('教室メモ：','Room note: ')+courseNameForTeachingLanguage(item))}">
       </div>
     </div>`).join('') : `<p class="empty">${L('この曜日に登録されている授業はありません。','No courses on this day.')}</p>`;
@@ -258,7 +258,7 @@ function renderTimetable(){
 
   ttOther.innerHTML = other.length
     ? `<p style="font-size:13px;color:var(--ink-soft);margin:0 0 8px;">${L('曜日・時限が決まっていない科目（通年など）','Courses without a fixed day/period (full-year, etc.)')}</p>` +
-      other.map(x => `<div class="ttOtherItem"><span>${timetableSyllabusLink(x)}（${escapeHTML(x.teacher)} / ${escapeHTML(L(TERM_LABEL[x.term]||x.term, TERM_LABEL_EN[x.term]||x.term))}）${x.room ? '<br><span style="color:var(--ink-soft);font-size:12px;">'+L('教室：','Room: ')+escapeHTML(x.room)+'</span>' : ''}${hasTeamCode(x.code) ? '<br>'+teamCodeHTML(x.code, false) : ''}</span><button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>`).join('')
+      other.map(x => `<div class="ttOtherItem"><span>${timetableSyllabusLink(x)}（${escapeHTML(x.teacher)} / ${escapeHTML(L(TERM_LABEL[x.term]||x.term, TERM_LABEL_EN[x.term]||x.term))}）${x.room ? '<br><span style="color:var(--ink-soft);font-size:12px;">'+L('教室：','Room: ')+escapeHTML(x.room)+'</span>' : ''}${classCodesHTML(x.code, false)}</span><button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>`).join('')
     : '';
   ttOther.querySelectorAll('.rm').forEach(el => {
     el.addEventListener('click', () => {
@@ -277,6 +277,7 @@ function renderTimetable(){
         <div class="intBody">
           <div class="name">${timetableSyllabusLink(x)}</div>
           <div class="meta">${escapeHTML(x.teacher)}${x.room ? ' ・ '+escapeHTML(x.room) : ''}<button type="button" class="rm" data-key="${escapeHTML(x.key)}" aria-label="${L('時間割から外す','Remove from timetable')}">×</button></div>
+          ${classCodesHTML(x.code, true)}
         </div>
       </div>`).join('')
     : '';
@@ -339,6 +340,7 @@ function renderToday(){
       <div>
         <div class="todayCourse">${timetableSyllabusLink(item)}</div>
         <div class="todayMeta">${escapeHTML(item.teacher)}${item.room ? ' ・ ' + escapeHTML(item.room) : ' ・ '+L('教室未入力','room not entered')}</div>
+        ${classCodesHTML(item.code, true)}
       </div>
     </div>`;
   }).join('');
@@ -347,6 +349,7 @@ function renderToday(){
       <div>
         <div class="todayCourse">${timetableSyllabusLink(item)}</div>
         <div class="todayMeta">${escapeHTML(item.teacher)}${item.room ? ' ・ ' + escapeHTML(item.room) : ' ・ '+L('教室未入力','room not entered')}</div>
+        ${classCodesHTML(item.code, true)}
       </div>
     </div>`).join('');
   el.innerHTML = `<div class="todayCard"><p class="todayTitle">${title}</p>${rows}</div>`;

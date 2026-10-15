@@ -104,6 +104,12 @@ function teamCodeHTML(code, block){
   const tag = block ? 'div' : 'span';
   return `<${tag} class="sMeta">${L('チームコード：','Team code: ')}<code class="teamCode">${escapeHTML(value)}</code><button type="button" class="copyTeamCode" data-team-code="${escapeHTML(value)}" aria-label="${escapeHTML(L('チームコード '+value+' をコピー','Copy team code '+value))}"></button></${tag}>`;
 }
+function classCodesHTML(code, block){
+  const tag=block?'div':'span';
+  const timetableCode=code?`<span class="sMeta">${L('時間割コード：','Class code: ')}<code class="classCode">${escapeHTML(code)}</code></span>`:'';
+  const team=teamCodeHTML(code,false)||`<span class="sMeta">${L('チームコード：未収録','Team code: not available')}</span>`;
+  return `<${tag} class="classCodes">${timetableCode}${team}</${tag}>`;
+}
 async function copyTeamCode(value){
   if(!/^[a-z0-9]{7}$/.test(value))return false;
   try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(value);return true;}}catch{}
