@@ -729,123 +729,11 @@
     .handbookFacts{grid-template-columns:repeat(4,minmax(0,1fr));}
     .ruleCapabilities{grid-template-columns:1fr 1fr;}
   }
-
-  /* --- PC表示：和紙と明朝（墨＋朱の2色、紙の質感、影なし・小さな角丸）。スマホ表示は変えない --- */
-  @media (min-width:700px){
-    :root{
-      --paper:#F6F1E6;
-      --ink:#24211D;
-      --ink-soft:#5E574B;
-      --coral:#A23A1F;
-      --coral-strong:#7A2A16;
-      --coral-soft:#F4E2D8;
-      --yellow:#F0C3B2;
-      --yellow-soft:#ECE4D3;
-      --card:#FCF9F2;
-      --line:#D6CCB6;
-      --radius:4px;
-      --surface-muted:#EDE6D6;
-      --shadow:none;
-      --mincho:"Hiragino Mincho ProN","Yu Mincho","YuMincho","BIZ UDPMincho","Noto Serif JP",serif;
-      --serif-en:"Didot","Bodoni 72","Bodoni MT","Georgia",serif;
-    }
-    html{background:var(--paper);}
-    body{
-      background-color:var(--paper);
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .31 0 0 0 0 .22 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size:220px 220px;
-      min-height:100vh;
-    }
-    h1,h2,h3,.display,.qtrHeader .qtrName,.creditGroupTitle,.todayTitle{font-family:var(--mincho);font-weight:600;letter-spacing:.06em;}
-    h1.display{font-size:44px;letter-spacing:.1em;line-height:1.15;}
-    h1.display span{font-family:var(--serif-en);font-style:italic;font-weight:400;letter-spacing:0;margin-left:.06em;}
-    .sub{font-family:var(--mincho);font-size:14px;letter-spacing:.04em;}
-    .kicker .dot{border-radius:0;width:14px;height:1px;}
-    .langBtn{border-radius:var(--radius);border-width:1px;background:transparent;}
-
-    .sectionEyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mincho);font-weight:600;font-size:12.5px;letter-spacing:.24em;}
-    .sectionEyebrow::before{content:"";flex:0 0 28px;height:1px;background:currentColor;}
-    .sectionHeading{padding-bottom:16px;border-bottom:1px solid var(--line);}
-    .sectionHeading h2{font-size:30px;letter-spacing:.12em;}
-
-    nav.tabs{counter-reset:tab;gap:0;margin-left:0;margin-right:0;padding:0;border:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);border-radius:0;background:rgba(246,241,230,.94);box-shadow:none;}
-    nav.tabs button{counter-increment:tab;border-radius:0;font-family:var(--mincho);font-weight:600;font-size:14.5px;letter-spacing:.08em;}
-    nav.tabs button::before{content:counter(tab,decimal-leading-zero);display:block;font-family:var(--serif-en);font-style:italic;font-weight:400;font-size:12px;letter-spacing:.04em;color:var(--ink-soft);}
-    nav.tabs button.active{background:transparent;color:var(--coral);box-shadow:inset 0 -3px 0 var(--coral);}
-    nav.tabs button.active::before{color:var(--coral);}
-    nav.tabs button:hover{background:rgba(36,33,29,.04);color:var(--ink);}
-
-    .card,.searchBoxPanel,.sectionSurface,.ruleHero,.ruleCard,.ruleDetails,.ruleBlock,.handbookFact,.creditSettingsCard,.creditResultCard,
-    #creditResults details,#creditList details,.creditOfferingPanel,.creditGuideMore,.qtrHeader,.intItem,.ttOtherItem,.ttDayRow,.todayCard,
-    .registrationCohortPicker,.syllabusDetail,.syllabusUnavailable,.noticeBox{border-radius:var(--radius);box-shadow:none;}
-    .card{border-color:var(--line);}
-    .card:hover{border-color:var(--ink);box-shadow:none;}
-    .card.open{border-color:var(--coral);box-shadow:none;}
-    .card .name{font-family:var(--mincho);font-weight:600;font-size:16.5px;letter-spacing:.03em;}
-    .searchBoxPanel{border-color:var(--ink);}
-    .searchBoxPanel input[type="search"]{background:var(--card);}
-    .pillBtn,.seasonTabs button,.dayTabs button,.addToggle,input[type="search"],select,.filterGrid select,.registrationCohortPicker select{border-radius:var(--radius);}
-    .primaryBtn{box-shadow:none;}
-    .stepNav .pillBtn{border-radius:var(--radius);}
-
-    .tag,.cal-body .quarter,.cal-type.t-holiday,.languageBadge.ja{color:var(--ink-soft);background:var(--yellow-soft);}
-    .tag,.cal-body .quarter,.cal-type,.languageBadge,.next-flag,.supportedBadge,.syllabusFacts span,.sourceLanguageBadge{border-radius:2px;}
-    .ttTable th,.ttCalTable th{background:var(--yellow-soft);color:var(--ink);}
-    .intItem{border-left-color:var(--coral);}
-    .intDate,.ttDayRow .period{color:var(--coral-strong);}
-    .handbookFact b,.creditMeasure b{font-family:var(--serif-en);font-weight:400;}
-    mark{background:var(--coral-soft);}
-
-    .todayCard{background:var(--ink);}
-    .todayTitle{color:var(--yellow);letter-spacing:.14em;}
-    .todayTime{color:var(--yellow);}
-
-    footer{border-top:1px solid var(--line);}
-  }
-
-  /* --- 広い画面：左にタイトルと今日の授業、中央に本文、右に番号つき目次の3列 --- */
-  @media (min-width:1180px){
-    .wrap{
-      max-width:1320px;display:grid;justify-content:center;align-items:start;
-      grid-template-columns:minmax(230px,280px) minmax(0,700px) minmax(170px,200px);
-      grid-template-rows:auto auto 1fr;column-gap:clamp(36px,4vw,64px);
-      padding:56px 40px 72px;
-    }
-    .wrap > .empty{grid-column:2;grid-row:1;}
-    .wrap > .panel{grid-column:2;grid-row:2;}
-    .wrap > footer{grid-column:2;grid-row:3;}
-    .sideIntro{grid-column:1;grid-row:1 / -1;align-self:start;position:sticky;top:48px;}
-    .sideIntro::after{content:"2026";content:"2026" / "";display:block;margin-top:28px;font-family:var(--serif-en);font-style:italic;font-size:88px;line-height:1;letter-spacing:-.02em;color:var(--line);}
-    header.top{margin-bottom:28px;}
-    .kicker{flex-wrap:wrap;justify-content:flex-start;row-gap:10px;}
-    .kicker > span:nth-child(2){flex:1 1 0;}
-    .kicker .langBtn{margin-left:22px;}
-    h1.display{font-size:52px;margin:6px 0 18px;padding-bottom:18px;border-bottom:1px solid var(--ink);}
-    .sub{font-size:13.5px;line-height:1.9;}
-
-    nav.tabs{
-      grid-column:3;grid-row:1 / -1;align-self:start;position:sticky!important;top:48px;
-      display:flex;flex-direction:column;margin:0;background:transparent;
-      backdrop-filter:none;-webkit-backdrop-filter:none;
-    }
-    nav.tabs::before{content:"Index";content:"Index" / "";padding:10px 0;border-bottom:1px solid var(--line);font-family:var(--serif-en);font-style:italic;font-size:15px;color:var(--ink-soft);}
-    nav.tabs button{
-      display:grid;grid-template-columns:34px minmax(0,1fr);align-items:baseline;
-      width:100%;min-height:0;padding:15px 0;text-align:left;font-size:15px;
-      border-bottom:1px solid var(--line);
-    }
-    nav.tabs button:last-child{border-bottom:0;}
-    nav.tabs button::before{display:inline;font-size:13px;}
-    nav.tabs button.active{box-shadow:none;}
-    nav.tabs button.active::after{content:"";grid-column:2;width:24px;height:2px;margin-top:6px;background:var(--coral);}
-    nav.tabs button:hover{background:transparent;color:var(--coral);}
-  }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="sideIntro">
   <header class="top">
     <div class="kicker">
       <span class="dot"></span>
@@ -857,7 +745,6 @@
   </header>
 
   <div id="todayCard"></div>
-  </div>
 
   <nav class="tabs" aria-label="主要機能" data-en-aria-label="Primary features">
     <button class="active" data-tab="syllabus" data-en="Search" aria-current="page">シラバス検索</button>
