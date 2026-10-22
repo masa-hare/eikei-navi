@@ -1,0 +1,8 @@
+# GitHub Actions の版を見張る。このサイトは npm などのパッケージを使っていないため対象は Actions だけ。
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

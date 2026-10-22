@@ -1,0 +1,36 @@
+# 追加の依存なし（ランナーに入っている python3 と node だけ）で、公開前にサイトの形を確かめる。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: JSON が読めるか
+        run: |
+          for f in manifest.json data/*.json; do
+            python3 -m json.tool "$f" > /dev/null || { echo "::error file=$f::JSON として読めません"; exit 1; }
+          done
+
+      - name: JavaScript の構文
+        run: |
+          for f in sw.js js/*.js; do node --check "$f"; done
+
+      - name: HTML の構文と安全設定
+        run: python3 .github/scripts/check_site.py
